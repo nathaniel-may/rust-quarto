@@ -38,7 +38,11 @@ impl Game {
 
 impl PassGame {
     pub fn pass_piece(self, p: Piece) -> Option<PlaceGame> {
-        None // TODO stub
+        if self.board.contains(p) {
+            None
+        } else {
+            Some(PlaceGame{ board: self.board, passed: p, })
+        }
     }
 }
 
