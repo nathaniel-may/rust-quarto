@@ -1,4 +1,5 @@
 use crate::piece::Piece;
+use std::fmt;
 
 #[derive(Copy, Clone)]
 pub struct Board {
@@ -24,6 +25,22 @@ impl Board {
 pub fn new_board() -> Board {
     Board {
         pieces: [[None; 4]; 4],
+    }
+}
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut s: String = "".to_owned();
+        for row in &self.pieces {
+            for p in row {
+                match p {
+                    None => s = s + "_ ",
+                    Some(p) => s = s + &p.to_string() + " ",
+                };
+                s = s + "\n";
+            };
+        };
+        write!(f, "{}", s)
     }
 }
 
