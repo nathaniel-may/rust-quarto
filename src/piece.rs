@@ -2,6 +2,7 @@ use std::fmt;
 
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Color {
     White,
     Black,
@@ -9,6 +10,7 @@ pub enum Color {
 
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Height {
     Tall,
     Short,
@@ -16,6 +18,7 @@ pub enum Height {
 
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Shape {
     Round,
     Square,
@@ -23,6 +26,7 @@ pub enum Shape {
 
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq)]
+#[derive(Debug)]
 pub enum Top {
     Flat,
     Hole,
@@ -30,6 +34,7 @@ pub enum Top {
 
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq)]
+#[derive(Debug)]
 pub struct Piece {
     pub color: Color,
     pub height: Height,

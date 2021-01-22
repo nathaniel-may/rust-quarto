@@ -1,5 +1,6 @@
 mod piece;
 mod board;
+mod game;
 use crate::piece::Piece;
 use crate::piece::Color;
 use crate::piece::Height;
