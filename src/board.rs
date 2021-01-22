@@ -57,10 +57,10 @@ pub enum Idx {
 impl Idx {
     fn to_i(&self) -> usize {
         match *self {
-            Idx::I1 => 1,
-            Idx::I2 => 2,
-            Idx::I3 => 3,
-            Idx::I4 => 4,
+            Idx::I1 => 0,
+            Idx::I2 => 1,
+            Idx::I3 => 2,
+            Idx::I4 => 3,
         }
     }
 }
