@@ -1,37 +1,8 @@
+mod piece;
+use crate::piece::Piece;
+
 fn main() {
     println!("Hello, world!");
-}
-
-#[derive(Copy, Clone)]
-enum Color {
-    White,
-    Black,
-}
-
-#[derive(Copy, Clone)]
-enum Height {
-    Tall,
-    Short,
-}
-
-#[derive(Copy, Clone)]
-enum Shape {
-    Round,
-    Square,
-}
-
-#[derive(Copy, Clone)]
-enum Top {
-    Flat,
-    Hole,
-}
-
-#[derive(Copy, Clone)]
-struct Piece {
-    color: Color,
-    height: Height,
-    shape: Shape,
-    top: Top,
 }
 
 #[derive(Copy, Clone)]
