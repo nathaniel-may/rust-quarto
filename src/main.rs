@@ -61,7 +61,7 @@ enum V {
     V4
 }
 
-fn h_to_int(h: H) -> usize {
+fn h_to_i(h: H) -> usize {
     match h {
         H::H1 => 1,
         H::H2 => 2,
@@ -70,7 +70,7 @@ fn h_to_int(h: H) -> usize {
     }
 }
 
-fn v_to_int(v: V) -> usize {
+fn v_to_i(v: V) -> usize {
     match v {
         V::V1 => 1,
         V::V2 => 2,
@@ -80,5 +80,15 @@ fn v_to_int(v: V) -> usize {
 }
 
 fn get_piece(b: Board, square: (H, V)) -> Option<Piece> {
-    b.pieces[h_to_int(square.0)][v_to_int(square.1)]
+    b.pieces[h_to_i(square.0)][v_to_i(square.1)]
+}
+
+fn place_piece(b: &mut Board, square: (H, V), p: Piece) -> Option<Board> {
+    match get_piece(*b, square) {
+        None    => {
+            b.pieces[h_to_i(square.0)][v_to_i(square.1)];
+            Some(*b)
+        }
+        Some(p) => None
+    }
 }
