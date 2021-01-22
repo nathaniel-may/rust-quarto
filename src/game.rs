@@ -37,13 +37,13 @@ impl Game {
 }
 
 impl PassGame {
-    pub fn pass_piece(&mut self, p: Piece) -> Option<PlaceGame> {
+    pub fn pass_piece(self, p: Piece) -> Option<PlaceGame> {
         None // TODO stub
     }
 }
 
 impl PlaceGame {
-    pub fn place_piece(&mut self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
+    pub fn place_piece(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
         self.board.place_piece(square, self.passed).map(|b|
             if is_final(b) {
                 Either::Left(FinalGame { board: b } )

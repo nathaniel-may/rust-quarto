@@ -7,11 +7,12 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn place_piece(&mut self, square: (Idx, Idx), p: Piece) -> Option<Board> {
+    pub fn place_piece(&self, square: (Idx, Idx), p: Piece) -> Option<Board> {
         match self.get_piece(square) {
             None => {
-                self.pieces[square.0.to_i()][square.1.to_i()] = Some(p);
-                Some(*self)
+                let updated = &mut self.pieces.clone();
+                updated[square.0.to_i()][square.1.to_i()] = Some(p);
+                Some(Board { pieces: *updated })
             },
             Some(_) => None,
         }
