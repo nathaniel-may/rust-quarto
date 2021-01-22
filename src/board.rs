@@ -32,13 +32,15 @@ impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut s: String = "".to_owned();
         for row in &self.pieces {
+            let mut row_s: String = "| ".to_owned();
             for p in row {
                 match p {
-                    None => s = s + "_ ",
-                    Some(p) => s = s + &p.to_string() + " ",
+                    None => row_s = row_s + "     | ",
+                    Some(p) => row_s = row_s + &p.to_string() + " | ",
                 };
-                s = s + "\n";
             };
+            row_s.pop(); // remove trailing space char
+            s = s + &row_s + "\n";
         };
         write!(f, "{}", s)
     }

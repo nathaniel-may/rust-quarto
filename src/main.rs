@@ -1,8 +1,8 @@
 mod piece;
 mod board;
-use crate::piece::Piece;
-use crate::board::Board;
+use crate::board::new_board;
 
 fn main() {
-    println!("Hello, world!");
+    println!("Empty Board:");
+    println!("{}", new_board())
 }
