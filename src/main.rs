@@ -39,6 +39,18 @@ struct Board {
     pieces: [[Option<Piece>; 4]; 4],
 }
 
+impl Board {
+    fn place_piece(&mut self, square: (H, V), p: Piece) -> Option<Board> {
+        match get_piece(*self, square) {
+            None => {
+                self.pieces[h_to_i(square.0)][v_to_i(square.1)] = Some(p);
+                Some(*self)
+            }
+            Some(_) => None
+        }
+    }
+}
+
 fn new_board() -> Board {
     Board {
         pieces: [[None; 4]; 4],
@@ -81,14 +93,4 @@ fn v_to_i(v: V) -> usize {
 
 fn get_piece(b: Board, square: (H, V)) -> Option<Piece> {
     b.pieces[h_to_i(square.0)][v_to_i(square.1)]
-}
-
-fn place_piece(b: &mut Board, square: (H, V), p: Piece) -> Option<Board> {
-    match get_piece(*b, square) {
-        None    => {
-            b.pieces[h_to_i(square.0)][v_to_i(square.1)];
-            Some(*b)
-        }
-        Some(p) => None
-    }
 }
