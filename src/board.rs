@@ -7,6 +7,18 @@ pub struct Board {
 }
 
 impl Board {
+    pub fn contains(&self, p: Piece) -> bool {
+        let mut found = false;
+        for row in &self.pieces {
+            for piece in row {
+                piece.map(|x|
+                    if x == p { found = true; }
+                );
+            };
+        };
+        found
+    }
+
     pub fn place_piece(&self, square: (Idx, Idx), p: Piece) -> Option<Board> {
         match self.get_piece(square) {
             None => {
