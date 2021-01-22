@@ -26,10 +26,10 @@ pub enum Top {
 
 #[derive(Copy, Clone)]
 pub struct Piece {
-    color: Color,
-    height: Height,
-    shape: Shape,
-    top: Top,
+    pub color: Color,
+    pub height: Height,
+    pub shape: Shape,
+    pub top: Top,
 }
 
 impl fmt::Display for Piece {

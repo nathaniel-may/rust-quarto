@@ -7,7 +7,7 @@ pub struct Board {
 }
 
 impl Board {
-    fn place_piece(&mut self, square: (Idx, Idx), p: Piece) -> Option<Board> {
+    pub fn place_piece(&mut self, square: (Idx, Idx), p: Piece) -> Option<Board> {
         match self.get_piece(square) {
             None => {
                 self.pieces[square.0.to_i()][square.1.to_i()] = Some(p);
@@ -17,7 +17,7 @@ impl Board {
         }
     }
 
-    fn get_piece(&self, square: (Idx, Idx)) -> Option<Piece> {
+    pub fn get_piece(&self, square: (Idx, Idx)) -> Option<Piece> {
         self.pieces[square.0.to_i()][square.1.to_i()]
     }
 }
