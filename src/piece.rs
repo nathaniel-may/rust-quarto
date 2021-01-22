@@ -1,30 +1,35 @@
 use std::fmt;
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq)]
 pub enum Color {
     White,
     Black,
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq)]
 pub enum Height {
     Tall,
     Short,
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq)]
 pub enum Shape {
     Round,
     Square,
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq)]
 pub enum Top {
     Flat,
     Hole,
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq)]
 pub struct Piece {
     pub color: Color,
     pub height: Height,
