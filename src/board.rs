@@ -4,13 +4,11 @@ use std::fmt;
 #[derive(Copy, Clone)]
 pub struct Board {
     pieces: [[Option<Piece>; 4]; 4],
-    passed: Option<Piece>,
 }
 
 impl Board {
     pub fn place_piece(&mut self, square: (Idx, Idx), p: Piece) -> Option<Board> {
         match self.get_piece(square) {
-            None if self.passed.map(|x| x == p).unwrap_or_else(|| {false}) => None,
             None => {
                 self.pieces[square.0.to_i()][square.1.to_i()] = Some(p);
                 Some(*self)
@@ -27,7 +25,6 @@ impl Board {
 pub fn new_board() -> Board {
     Board {
         pieces: [[None; 4]; 4],
-        passed: None,
     }
 }
 
