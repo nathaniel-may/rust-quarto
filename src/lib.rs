@@ -4,9 +4,11 @@ mod piece;
 use either::Either;
 use std::collections::HashMap;
 use board::*;
-use Idx::*;
 use piece::*;
 use piece::Attribute::*;
+
+pub use board::Idx;
+pub use board::Idx::*;
 
 pub struct PassGame {
     board: Board,

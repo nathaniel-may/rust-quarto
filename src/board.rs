@@ -1,6 +1,7 @@
 use crate::piece::Piece;
 use std::fmt;
 
+
 #[derive(Copy, Clone)]
 pub struct Board {
     // private field prevents ownership changes and therefor outside mutation
@@ -64,7 +65,9 @@ impl fmt::Display for Board {
     }
 }
 
+// TODO Eq
 #[derive(Copy, Clone)]
+#[derive(Debug)]
 pub enum Idx {
     I1,
     I2,
