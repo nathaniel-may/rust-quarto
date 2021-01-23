@@ -1,8 +1,8 @@
 use either::Either;
 use std::collections::HashMap;
-use crate::board::Board;
-use crate::board::Idx;
-use crate::piece::Piece;
+use crate::board::*;
+use crate::Idx::*;
+use crate::piece::*;
 use crate::piece::Attribute::*;
 
 struct PassGame {
@@ -32,10 +32,6 @@ impl Game {
             Game::Final(g) => g.board,
         }
     }
-
-    fn is_final(&self) -> bool {
-        is_final(self.board())
-    }
 }
 
 impl PassGame {
@@ -51,7 +47,7 @@ impl PassGame {
 impl PlaceGame {
     pub fn place_piece(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
         self.board.place_piece(square, self.passed).map(|b|
-            if is_final(b) {
+            if has_win(b) {
                 Either::Left(FinalGame { board: b } )
             } else {
                 Either::Right(PassGame { board: b } )
@@ -82,18 +78,39 @@ fn row_has_win(row: [Option<Piece>; 4]) -> bool {
 
 fn has_win(b: Board) -> bool {
     let mut found_win = false;
-    for row in &b.raw() {
+    let rows = b.raw();
+    let cols = rows; // TODO rotate them first
+    let diag1 = [
+        b.get(I1, I1),
+        b.get(I2, I2),
+        b.get(I3, I3),
+        b.get(I4, I4)
+    ];
+    let diag2 = [
+        b.get(I1, I4),
+        b.get(I2, I3),
+        b.get(I3, I2),
+        b.get(I4, I1)
+    ];
+    let win_lines: [[Option<Piece>; 4]; 10] = [
+        rows[0],
+        rows[1],
+        rows[2],
+        rows[3],
+        cols[0],
+        cols[1],
+        cols[2],
+        cols[3],
+        diag1,
+        diag2,
+    ];
+
+    for row in &win_lines {
         if row_has_win(*row) {
             found_win = true;
             break;
         }
     }
 
-    // TODO rotate board for columns and pass diagonals
-
     found_win
-}
-
-fn is_final(b: Board) -> bool {
-    false // TODO stub
 }

@@ -24,7 +24,7 @@ impl Board {
     }
 
     pub fn place_piece(&self, square: (Idx, Idx), p: Piece) -> Option<Board> {
-        match self.get_piece(square) {
+        match self.get(square.0, square.1) {
             None => {
                 let updated = &mut self.pieces.clone();
                 updated[square.0.to_i()][square.1.to_i()] = Some(p);
@@ -34,8 +34,8 @@ impl Board {
         }
     }
 
-    pub fn get_piece(&self, square: (Idx, Idx)) -> Option<Piece> {
-        self.pieces[square.0.to_i()][square.1.to_i()]
+    pub fn get(&self, h: Idx, v: Idx) -> Option<Piece> {
+        self.pieces[h.to_i()][v.to_i()]
     }
 }
 
