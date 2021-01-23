@@ -1,7 +1,9 @@
 use either::Either;
+use std::collections::HashMap;
 use crate::board::Board;
 use crate::board::Idx;
 use crate::piece::Piece;
+use crate::piece::Attribute::*;
 
 struct PassGame {
     board: Board,
@@ -56,6 +58,26 @@ impl PlaceGame {
             }
         )
     }
+}
+
+fn row_has_win(row: [Option<Piece>; 4]) -> bool {
+    fn has_win(r: [Piece; 4]) -> bool {
+        let mut m = HashMap::new();
+
+        let action: Vec<()> = r.iter().map(|p| {
+            m.entry(C(p.color)).and_modify(|v| *v += 1).or_insert(1);
+            m.entry(H(p.height)).and_modify(|v| *v += 1).or_insert(1);
+            m.entry(S(p.shape)).and_modify(|v| *v += 1).or_insert(1);
+            m.entry(T(p.top)).and_modify(|v| *v += 1).or_insert(1);
+        }).collect();
+
+        m.iter().any(|(_, &x)| x == 4)
+    }
+
+    match (row[0], row[1], row[2], row[3]) {
+        (Some(a), Some(b), Some(c), Some(d)) => Some([a, b, c, d]),
+        _ => None,
+    }.iter().fold(false, |_, &r| has_win(r))
 }
 
 fn is_final(b: Board) -> bool {
