@@ -6,43 +6,46 @@ extern crate quickcheck;
 extern crate quickcheck_macros;
 use quickcheck::{Arbitrary, Gen};
 
-fn all() -> [(Idx, Idx); 16] { 
-    [
-        (I1,I1),
-        (I1,I2),
-        (I1,I3),
-        (I1,I4),
-        (I2,I1),
-        (I2,I2),
-        (I2,I3),
-        (I2,I4),
-        (I3,I1),
-        (I3,I2),
-        (I3,I3),
-        (I3,I4),
-        (I4,I1),
-        (I4,I2),
-        (I4,I3),
-        (I4,I4),
-    ]
-}
+static ALL_SQUARES: [(Idx, Idx); 16] = [
+    (I1,I1),
+    (I1,I2),
+    (I1,I3),
+    (I1,I4),
+    (I2,I1),
+    (I2,I2),
+    (I2,I3),
+    (I2,I4),
+    (I3,I1),
+    (I3,I2),
+    (I3,I3),
+    (I3,I4),
+    (I4,I1),
+    (I4,I2),
+    (I4,I3),
+    (I4,I4),
+];
 
 #[derive(Copy, Clone)]
 #[derive(Debug)]
-enum Run {
-    Run([(Idx, Idx); 16])
+struct Run {
+    squares: [(Idx, Idx); 16],
+    pieces: [Piece; 16],
 }
 
 impl Arbitrary for Run {
     fn arbitrary(g: &mut Gen) -> Run {
-        let mut all = all();
+        let mut squares = ALL_SQUARES;
+        let mut pieces = ALL_PIECES;
+
         let mut rng = thread_rng();
-        all.shuffle(&mut rng);
-        Run::Run(all)
+        squares.shuffle(&mut rng);
+        pieces.shuffle(&mut rng);
+
+        Run { squares: squares, pieces: pieces }
     }
 }
 
 #[quickcheck]
-fn all_games_end(xs: Run) -> bool {
+fn all_games_end(r: Run) -> bool {
     false // TODO stub
 }
