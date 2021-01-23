@@ -61,7 +61,7 @@ impl PlaceGame {
 }
 
 fn row_has_win(row: [Option<Piece>; 4]) -> bool {
-    fn has_win(r: [Piece; 4]) -> bool {
+    fn r_has_win(r: [Piece; 4]) -> bool {
         let mut m = HashMap::new();
 
         let action: Vec<()> = r.iter().map(|p| {
@@ -77,7 +77,21 @@ fn row_has_win(row: [Option<Piece>; 4]) -> bool {
     match (row[0], row[1], row[2], row[3]) {
         (Some(a), Some(b), Some(c), Some(d)) => Some([a, b, c, d]),
         _ => None,
-    }.iter().fold(false, |_, &r| has_win(r))
+    }.iter().fold(false, |_, &r| r_has_win(r))
+}
+
+fn has_win(b: Board) -> bool {
+    let mut found_win = false;
+    for row in &b.raw() {
+        if row_has_win(*row) {
+            found_win = true;
+            break;
+        }
+    }
+
+    // TODO rotate board for columns and pass diagonals
+
+    found_win
 }
 
 fn is_final(b: Board) -> bool {

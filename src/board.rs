@@ -7,6 +7,10 @@ pub struct Board {
 }
 
 impl Board {
+    pub fn raw(&self) -> [[Option<Piece>; 4]; 4] {
+        self.pieces.clone()
+    }
+
     pub fn contains(&self, p: Piece) -> bool {
         let mut found = false;
         for row in &self.pieces {
