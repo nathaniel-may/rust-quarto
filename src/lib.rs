@@ -64,6 +64,10 @@ impl PlaceGame {
     }
 }
 
+pub fn new_game() -> PassGame {
+    PassGame { board: new_board() }
+}
+
 fn row_has_win(row: &[Option<Piece>; 4]) -> bool {
     fn r_has_win(r: &[Piece; 4]) -> bool {
         let mut m = HashMap::new();
