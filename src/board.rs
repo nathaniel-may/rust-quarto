@@ -3,6 +3,7 @@ use std::fmt;
 
 #[derive(Copy, Clone)]
 pub struct Board {
+    // private field prevents ownership changes and therefor outside mutation
     pieces: [[Option<Piece>; 4]; 4],
 }
 

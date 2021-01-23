@@ -44,7 +44,7 @@ pub struct Piece {
 
 impl fmt::Display for Piece {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut s: String = "".to_owned();
+        let mut s: String = String::from("");
         match self.color {
             Color::White => s = s + "W",
             Color::Black => s = s + "B",

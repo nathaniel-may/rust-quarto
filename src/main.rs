@@ -17,10 +17,19 @@ fn main() {
         top: Top::Flat,
     };
 
+    let btrf = Piece {
+        color: Color::Black,
+        height: Height::Tall,
+        shape: Shape::Round,
+        top: Top::Flat,
+    };
+
     let b = new_board()
         .place_piece((Idx::I1, Idx::I2), wtrf)
-        .unwrap_or_else(||{new_board()});
+        .unwrap_or_else(|| {new_board()})
+        .place_piece((Idx::I2, Idx::I3), btrf)
+        .unwrap_or_else(|| {new_board()});
 
-    println!("Board with one piece:");
+    println!("Board with two pieces:");
     println!("{}", b)
 }
