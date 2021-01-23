@@ -1,13 +1,14 @@
-mod piece;
 mod board;
-mod game;
-use crate::piece::Piece;
-use crate::piece::Color;
-use crate::piece::Height;
-use crate::piece::Shape;
-use crate::piece::Top;
-use crate::board::Idx;
-use crate::board::new_board;
+mod piece;
+// TODO main should only need to use the lib crate
+
+use piece::Piece;
+use piece::Color;
+use piece::Height;
+use piece::Shape;
+use piece::Top;
+use board::Idx;
+use board::new_board;
 
 fn main() {
     let wtrf = Piece {

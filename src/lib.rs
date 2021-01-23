@@ -1,20 +1,23 @@
+mod board;
+mod piece;
+
 use either::Either;
 use std::collections::HashMap;
-use crate::board::*;
-use crate::Idx::*;
-use crate::piece::*;
-use crate::piece::Attribute::*;
+use board::*;
+use Idx::*;
+use piece::*;
+use piece::Attribute::*;
 
-struct PassGame {
+pub struct PassGame {
     board: Board,
 }
 
-struct PlaceGame {
+pub struct PlaceGame {
     board: Board,
     passed: Piece
 }
 
-struct FinalGame {
+pub struct FinalGame {
     board: Board,
 }
 
