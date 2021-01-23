@@ -7,8 +7,11 @@ use board::*;
 use piece::*;
 use piece::Attribute::*;
 
+// re-exorts
 pub use board::Idx;
 pub use board::Idx::*;
+pub use piece::*;
+pub use board::*;
 
 pub struct PassGame {
     board: Board,
