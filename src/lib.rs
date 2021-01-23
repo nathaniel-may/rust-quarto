@@ -40,7 +40,7 @@ impl Game {
 }
 
 impl PassGame {
-    pub fn pass_piece(self, p: Piece) -> Option<PlaceGame> {
+    pub fn pass(self, p: Piece) -> Option<PlaceGame> {
         if self.board.contains(p) {
             None
         } else {
@@ -50,7 +50,7 @@ impl PassGame {
 }
 
 impl PlaceGame {
-    pub fn place_piece(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
+    pub fn place(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
         self.board.place_piece(square, self.passed).map(|b|
             if has_win(&b) {
                 Either::Left(FinalGame { board: b } )
