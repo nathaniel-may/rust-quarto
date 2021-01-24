@@ -4,9 +4,8 @@ use rand::thread_rng;
 use itertools::interleave;
 use arrayvec::ArrayVec;
 use either::Either;
-extern crate quickcheck;
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
+use quickcheck;
+use quickcheck_macros::*;
 use quickcheck::{Arbitrary, Gen};
 use Turn::*;
 
