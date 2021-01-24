@@ -1,10 +1,13 @@
 use quarto::*;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use itertools::interleave;
+use arrayvec::ArrayVec;
 extern crate quickcheck;
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 use quickcheck::{Arbitrary, Gen};
+use Turn::*;
 
 static ALL_SQUARES: [(Idx, Idx); 16] = [
     (I1,I1),
@@ -27,9 +30,15 @@ static ALL_SQUARES: [(Idx, Idx); 16] = [
 
 #[derive(Copy, Clone)]
 #[derive(Debug)]
+enum Turn {
+    PassTurn(Piece),
+    PlaceTurn((Idx, Idx)),
+}
+
+#[derive(Copy, Clone)]
+#[derive(Debug)]
 struct Run {
-    squares: [(Idx, Idx); 16],
-    pieces: [Piece; 16],
+    turns: [Turn; 32],
 }
 
 impl Arbitrary for Run {
@@ -41,7 +50,14 @@ impl Arbitrary for Run {
         squares.shuffle(&mut rng);
         pieces.shuffle(&mut rng);
 
-        Run { squares: squares, pieces: pieces }
+        let interleaved: ArrayVec<[_; 32]> = 
+            interleave(
+                squares.iter().map(|x| PlaceTurn(*x)), 
+                pieces.iter().map(|x| PassTurn(*x)))
+            .into_iter()
+            .collect();
+        
+        Run { turns: interleaved.into_inner().unwrap() }
     }
 }
 
