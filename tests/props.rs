@@ -3,6 +3,7 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use itertools::interleave;
 use arrayvec::ArrayVec;
+use either::Either;
 extern crate quickcheck;
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
@@ -52,8 +53,8 @@ impl Arbitrary for Run {
 
         let interleaved: ArrayVec<[_; 32]> = 
             interleave(
-                squares.iter().map(|x| PlaceTurn(*x)), 
-                pieces.iter().map(|x| PassTurn(*x)))
+                pieces.iter().map(|x| PassTurn(*x)),
+                squares.iter().map(|x| PlaceTurn(*x)))
             .into_iter()
             .collect();
         
@@ -61,7 +62,33 @@ impl Arbitrary for Run {
     }
 }
 
+fn play(game: Game, turn: Turn) -> Option<Game> {
+    match game {
+        g @ Game::Final(_) => Some(g),
+        Game::Pass(g) => match turn {
+            PassTurn(p) => g.pass(p).map(|x| Place(x)),
+            _ => None,
+        },
+        Game::Place(g) => match turn {
+            PlaceTurn(p) => match g.place(p) {
+                Some(Either::Left(nextG)) => Some(Final(nextG)),
+                Some(Either::Right(nextG)) => Some(Pass(nextG)),
+                _ => None,
+            },
+            _ => None,
+        },
+    }
+}
+
 #[quickcheck]
 fn all_games_end(r: Run) -> bool {
-    false // TODO stub
+    let end = r.turns.iter().fold(
+        Some(Pass(quarto::new_game())), 
+        |game, &turn| game.and_then(|g| play(g, turn))
+    );
+    
+    match end {
+        Some(Final(_)) => true,
+        x => false,
+    }
 }

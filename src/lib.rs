@@ -12,20 +12,29 @@ pub use board::Idx;
 pub use board::Idx::*;
 pub use piece::*;
 pub use board::*;
+pub use Game::*;
 
+#[derive(Copy, Clone)]
+#[derive(Debug)]
 pub struct PassGame {
     board: Board,
 }
 
+#[derive(Copy, Clone)]
+#[derive(Debug)]
 pub struct PlaceGame {
     board: Board,
     passed: Piece
 }
 
+#[derive(Copy, Clone)]
+#[derive(Debug)]
 pub struct FinalGame {
     board: Board,
 }
 
+#[derive(Copy, Clone)]
+#[derive(Debug)]
 pub enum Game {
     Pass(PassGame),
     Place(PlaceGame),
