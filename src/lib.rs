@@ -3,8 +3,6 @@ mod piece;
 
 use either::Either;
 use std::collections::HashMap;
-use board::*;
-use piece::*;
 use piece::Attribute::*;
 
 // re-exorts
@@ -88,7 +86,9 @@ fn row_has_win(row: &[Option<Piece>; 4]) -> bool {
     fn r_has_win(r: &[Piece; 4]) -> bool {
         let mut m = HashMap::new();
 
-        let action: Vec<()> = r.iter().map(|p| {
+        // unused variable runs the mutations via collect().
+        // collect() needs the type annotation.
+        let _action: Vec<()> = r.iter().map(|p| {
             m.entry(C(p.color)).and_modify(|v| *v += 1).or_insert(1);
             m.entry(H(p.height)).and_modify(|v| *v += 1).or_insert(1);
             m.entry(S(p.shape)).and_modify(|v| *v += 1).or_insert(1);

@@ -42,7 +42,7 @@ struct Run {
 }
 
 impl Arbitrary for Run {
-    fn arbitrary(g: &mut Gen) -> Run {
+    fn arbitrary(_: &mut Gen) -> Run {
         let mut squares = ALL_SQUARES;
         let mut pieces = ALL_PIECES;
 
@@ -70,8 +70,8 @@ fn play(game: Game, turn: Turn) -> Option<Game> {
         },
         Game::Place(g) => match turn {
             PlaceTurn(p) => match g.place(p) {
-                Some(Either::Left(nextG)) => Some(Final(nextG)),
-                Some(Either::Right(nextG)) => Some(Pass(nextG)),
+                Some(Either::Left(next_g)) => Some(Final(next_g)),
+                Some(Either::Right(next_g)) => Some(Pass(next_g)),
                 _ => None,
             },
             _ => None,
@@ -88,6 +88,6 @@ fn all_games_end(r: Run) -> bool {
     
     match end {
         Some(Final(_)) => true,
-        x => false,
+        _ => false,
     }
 }
