@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 either = "1.6.1"
+structopt = "0.3.13"
 
 [dev-dependencies]
 quickcheck = "1"
