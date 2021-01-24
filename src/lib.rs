@@ -49,6 +49,13 @@ impl Game {
             Game::Final(g) => g.board,
         }
     }
+
+    pub fn is_tie(&self) -> bool {
+        match self {
+            g @ Final(_) => g.board().is_full(),
+            _ => false
+        }
+    }
 }
 
 impl PassGame {
