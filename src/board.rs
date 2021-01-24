@@ -26,6 +26,10 @@ impl Board {
         found
     }
 
+    pub fn is_full(&self) -> bool {
+        self.pieces.iter().flatten().all(|&x| x.is_some())
+    }
+
     pub fn place_piece(&self, square: (Idx, Idx), p: Piece) -> Option<Board> {
         match self.get(square.0, square.1) {
             None => {

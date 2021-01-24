@@ -64,7 +64,7 @@ impl PassGame {
 impl PlaceGame {
     pub fn place(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
         self.board.place_piece(square, self.passed).map(|b|
-            if has_win(&b) {
+            if has_win(&b) || b.is_full() {
                 Either::Left(FinalGame { board: b } )
             } else {
                 Either::Right(PassGame { board: b } )
