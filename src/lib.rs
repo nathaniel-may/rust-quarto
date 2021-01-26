@@ -1,16 +1,24 @@
 mod board;
 mod piece;
 
+// re-exorts
+pub use piece::{
+    Piece,
+    ALL_PIECES,
+    WTRF, WTRH, WTQF, WTQH, WSRF, WSRH, WSQF, WSQH, BTRF, BTRH, BTQF, BTQH, BSRF, BSRH, BSQF, BSQH
+};
+pub use board::{
+    Board, 
+    Idx,
+    Idx::{I1, I2, I3, I4},
+    new_board
+};
+pub use self::Game::{Pass, Place, Final};
+
+// local imports
 use either::Either;
 use std::collections::HashMap;
 use piece::Attribute::*;
-
-// re-exorts
-pub use board::Idx;
-pub use board::Idx::*;
-pub use piece::*;
-pub use board::*;
-pub use Game::*;
 
 #[derive(Copy, Clone)]
 #[derive(Debug)]
@@ -79,7 +87,7 @@ impl PlaceGame {
 }
 
 pub fn new_game() -> PassGame {
-    PassGame { board: new_board() }
+    PassGame { board: board::new_board() }
 }
 
 fn row_has_win(row: &[Option<Piece>; 4]) -> bool {
