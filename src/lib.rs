@@ -48,11 +48,11 @@ pub enum Game {
 }
 
 impl Game {
-    fn board(&self) -> Board {
+    fn board(&self) -> &Board {
         match self {
-            Game::Pass(g)  => g.board,
-            Game::Place(g) => g.board,
-            Game::Final(g) => g.board,
+            Game::Pass(g)  => &g.board,
+            Game::Place(g) => &g.board,
+            Game::Final(g) => &g.board,
         }
     }
 
@@ -61,6 +61,10 @@ impl Game {
             g @ Final(_) => g.board().is_full(),
             _ => false
         }
+    }
+    
+    pub fn has_win(&self) -> bool {
+        has_win(&self.board())
     }
 }
 
