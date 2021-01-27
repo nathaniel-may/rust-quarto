@@ -88,6 +88,11 @@ fn play(game: Game, turn: Turn) -> Option<Game> {
     }
 }
 
+#[test]
+fn new_game_is_empty() {
+    assert!(Pass(quarto::new_game()).piece_count() == 0)
+}
+
 #[quickcheck]
 fn all_games_end(r: Run) -> bool {
     match r.play() {
