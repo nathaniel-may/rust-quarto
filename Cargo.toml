@@ -1,16 +1,2 @@
-[package]
-name = "quarto"
-version = "0.1.0"
-authors = ["Nathaniel May <nate@nathanielmay.com>"]
-edition = "2018"
-
-[dependencies]
-either = "1.6.1"
-structopt = "0.3.13"
-
-[dev-dependencies]
-quickcheck = "1"
-quickcheck_macros = "1"
-rand = "0.8.2"
-itertools = "0.6.0"
-arrayvec = "0.4.10"
+[workspace]
+members = ["quarto", "testutil"]

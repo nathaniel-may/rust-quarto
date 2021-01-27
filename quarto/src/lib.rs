@@ -19,6 +19,8 @@ pub use self::Game::{Pass, Place, Final};
 use either::Either;
 use std::collections::HashMap;
 use piece::Attribute::*;
+#[cfg(test)]
+use testutil::*;
 
 #[derive(Copy, Clone)]
 #[derive(Debug)]
@@ -161,4 +163,33 @@ fn has_win(b: &Board) -> bool {
     }
 
     found_win
+}
+
+// this test requires the private fn `Game::board()`
+#[cfg(test)]
+#[quickcheck]
+fn detects_ties_as_final(r: Run) -> bool {
+    let end = r.turns.iter().fold(
+        Some(crate::Pass(crate::new_game())), 
+        |game, &turn| game.and_then(|g| play(g, turn))
+    );
+    
+    match end {
+        // all games with all pieces placed without a win are ties
+        Some(g@crate::Final(_)) => {
+            if g.board().is_full() && !g.has_win() {
+                g.is_tie()
+            } else {
+                // non ties don't fail this test
+                true
+            }
+        },
+        // non-final games cannot be ties
+        Some(g) => {
+            let should_be_tie = g.board().is_full() && !g.has_win();
+            !g.is_tie() && !should_be_tie
+        },
+        // no generated run should fail
+        _ => false,
+    }
 }

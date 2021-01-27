@@ -207,13 +207,9 @@ dependencies = [
 name = "quarto"
 version = "0.1.0"
 dependencies = [
- "arrayvec",
  "either",
- "itertools",
- "quickcheck",
- "quickcheck_macros",
- "rand",
  "structopt",
+ "testutil",
 ]
 
 [[package]]
@@ -344,6 +340,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-xid",
+]
+
+[[package]]
+name = "testutil"
+version = "0.1.0"
+dependencies = [
+ "arrayvec",
+ "either",
+ "itertools",
+ "quarto",
+ "quickcheck",
+ "quickcheck_macros",
+ "rand",
 ]
 
 [[package]]

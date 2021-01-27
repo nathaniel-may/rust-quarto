@@ -1,0 +1,12 @@
+[package]
+name = "quarto"
+version = "0.1.0"
+authors = ["Nathaniel May <nate@nathanielmay.com>"]
+edition = "2018"
+
+[dev-dependencies.testutil]
+path = "../testutil"
+
+[dependencies]
+either = "1.6.1"
+structopt = "0.3.13"
