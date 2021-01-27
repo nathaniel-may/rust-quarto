@@ -66,6 +66,10 @@ impl Game {
     pub fn has_win(&self) -> bool {
         has_win(&self.board())
     }
+
+    pub fn is_full(&self) -> bool {
+        self.board().is_full()
+    }
 }
 
 impl PassGame {
