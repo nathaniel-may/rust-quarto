@@ -91,3 +91,30 @@ fn all_games_end(r: Run) -> bool {
         _ => false,
     }
 }
+
+#[quickcheck]
+fn detects_ties_as_final(r: Run) -> bool {
+    let end = r.turns.iter().fold(
+        Some(crate::Pass(crate::new_game())), 
+        |game, &turn| game.and_then(|g| play(g, turn))
+    );
+    
+    match end {
+        // all final games with all pieces placed without a win are ties
+        Some(g@crate::Final(_)) => {
+            if g.is_full() && !g.has_win() {
+                g.is_tie()
+            } else {
+                // non ties don't fail this test
+                true
+            }
+        },
+        // all tie games must be final
+        Some(g) => {
+            let should_be_tie = g.is_full() && !g.has_win();
+            !g.is_tie() && !should_be_tie
+        },
+        // no generated run should fail
+        _ => false,
+    }
+}
