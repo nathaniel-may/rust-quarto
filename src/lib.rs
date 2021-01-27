@@ -67,8 +67,8 @@ impl Game {
         has_win(&self.board())
     }
 
-    pub fn is_full(&self) -> bool {
-        self.board().is_full()
+    pub fn piece_count(&self) -> usize {
+        self.board().piece_count()
     }
 }
 

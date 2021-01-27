@@ -101,7 +101,7 @@ fn detects_ties_as_final(r: Run) -> bool {
     match r.play() {
         // all final games with all pieces placed without a win are ties
         Some(g@crate::Final(_)) => {
-            if g.is_full() && !g.has_win() {
+            if (g.piece_count() == 16) && !g.has_win() {
                 g.is_tie()
             } else {
                 // non ties don't fail this test
@@ -110,7 +110,7 @@ fn detects_ties_as_final(r: Run) -> bool {
         },
         // all tie games must be final
         Some(g) => {
-            let should_be_tie = g.is_full() && !g.has_win();
+            let should_be_tie = (g.piece_count() == 16) && !g.has_win();
             !g.is_tie() && !should_be_tie
         },
         // no generated run should fail

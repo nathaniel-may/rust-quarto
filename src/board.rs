@@ -26,6 +26,10 @@ impl Board {
         found
     }
 
+    pub fn piece_count(&self) -> usize {
+        self.pieces.iter().flatten().filter(|x| x.is_some()).count()
+    }
+
     pub fn is_full(&self) -> bool {
         self.pieces.iter().flatten().all(|&x| x.is_some())
     }
