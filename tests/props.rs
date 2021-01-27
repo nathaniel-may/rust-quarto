@@ -41,6 +41,15 @@ struct Run {
     turns: [Turn; 32],
 }
 
+impl Run {
+    fn play(&self) -> Option<Game> {
+        self.turns.iter().fold(
+            Some(Pass(quarto::new_game())), 
+            |game, &turn| game.and_then(|g| play(g, turn))
+        )
+    }
+}
+
 impl Arbitrary for Run {
     fn arbitrary(_: &mut Gen) -> Run {
         let mut squares = ALL_SQUARES;
@@ -81,12 +90,7 @@ fn play(game: Game, turn: Turn) -> Option<Game> {
 
 #[quickcheck]
 fn all_games_end(r: Run) -> bool {
-    let end = r.turns.iter().fold(
-        Some(Pass(quarto::new_game())), 
-        |game, &turn| game.and_then(|g| play(g, turn))
-    );
-    
-    match end {
+    match r.play() {
         Some(Final(_)) => true,
         _ => false,
     }
@@ -94,12 +98,7 @@ fn all_games_end(r: Run) -> bool {
 
 #[quickcheck]
 fn detects_ties_as_final(r: Run) -> bool {
-    let end = r.turns.iter().fold(
-        Some(crate::Pass(crate::new_game())), 
-        |game, &turn| game.and_then(|g| play(g, turn))
-    );
-    
-    match end {
+    match r.play() {
         // all final games with all pieces placed without a win are ties
         Some(g@crate::Final(_)) => {
             if g.is_full() && !g.has_win() {
