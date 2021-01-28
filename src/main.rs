@@ -113,9 +113,11 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     // clear all output
     f.write_fmt(format_args!("{}", termion::clear::All)).unwrap();
 
+    let mut cursor_row = 1;
+
     // write game board out // TODO display passed piece, piece menu, and "cursor" 
     let mut s: String = "".to_owned();
-    for (idx, row) in state.game.board().raw().iter().enumerate() {
+    for row in state.game.board().raw().iter() {
         let mut row_s: String = "| ".to_owned();
         for p in row {
             match p {
@@ -124,9 +126,23 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
             };
         };
         row_s.pop(); // remove trailing space char
-        let i = (idx + 1) as u16;
-        f.write_fmt(format_args!("{}{}", termion::cursor::Goto(1, i), row_s)).unwrap();
+        f.write_fmt(format_args!("{}{}", termion::cursor::Goto(1, cursor_row), row_s)).unwrap();
+        cursor_row += 1;
     };
+
+    // display any error messages
+    match state.error {
+        None => {},
+        Some(e) => {
+            f.write_fmt(format_args!("{pos}{red}{err}{reset}",
+                pos = termion::cursor::Goto(1, cursor_row),
+                red = color::Fg(color::Red),
+                err = e,
+                reset = color::Fg(color::Reset)
+            )).unwrap();
+            cursor_row += 1;
+        },
+    }
     
     f.flush().unwrap();
 }
