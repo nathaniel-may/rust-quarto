@@ -251,11 +251,13 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     cursor.1 += 1;
 
     // write any error messages
+    cursor.0 = 14;
+    cursor.1 += 1;
     match state.error {
         None => {},
         Some(e) => {
             f.write_fmt(format_args!("{pos}{red}{err}{reset}",
-                pos = termion::cursor::Goto(1, cursor.1),
+                pos = termion::cursor::Goto(cursor.0, cursor.1),
                 red = color::Fg(color::Red),
                 err = e,
                 reset = color::Fg(color::Reset)
