@@ -114,7 +114,7 @@ fn write_banner<W: io::Write>(f: &mut W) {
     }
 }
 
-fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>) {
+fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
     let mut s: String = String::from("");
     match op {
         None => f.write_fmt(format_args!("{}","   ")).unwrap(),
@@ -179,7 +179,7 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
         f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
         for p in row {
             f.write_fmt(format_args!("{}", "| ")).unwrap();
-            write_piece(f, p);
+            write_piece(f, p, false);
             f.write_fmt(format_args!("{}", " ")).unwrap();
         };
         f.write_fmt(format_args!("{}", "|")).unwrap();
@@ -191,7 +191,7 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     // write pass menu row 1
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
-        write_piece(f, &Some(*p));
+        write_piece(f, &Some(*p), false);
         f.write_fmt(format_args!(" ")).unwrap();
     }
     cursor.1 += 1;
@@ -199,7 +199,7 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     // write pass menu row 2
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
-        write_piece(f, &Some(*p));
+        write_piece(f, &Some(*p), false);
         f.write_fmt(format_args!(" ")).unwrap();
     }
     cursor.1 += 1;
