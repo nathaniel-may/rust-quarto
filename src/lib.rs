@@ -4,6 +4,7 @@ mod piece;
 // re-exorts
 pub use piece::{
     Piece,
+    Color, Shape, Height, Top,
     ALL_PIECES,
     WTRF, WTRH, WTQF, WTQH, WSRF, WSRH, WSQF, WSQH, BTRF, BTRH, BTQF, BTQH, BSRF, BSRH, BSQF, BSQH
 };
