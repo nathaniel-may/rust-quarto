@@ -25,7 +25,6 @@ static BANNER: [&str; 6] = [
 ];
 
 static ORIGIN: (u16, u16) = (1, 1);
-static BOTTOM: (u16, u16) = (1, 6);
 
 fn main() {
     // guards against passing arguments that won't be used.
@@ -259,11 +258,10 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
         f.write_fmt(format_args!(" ")).unwrap();
         piece_cursor.1 += 1;
     }
-    cursor.1 += 1;
+    cursor.1 += 2;
 
     // write any error messages
     cursor.0 = 14;
-    cursor.1 += 1;
     match state.error {
         None => {},
         Some(e) => {
@@ -273,8 +271,22 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
                 err = e,
                 reset = color::Fg(color::Reset)
             )).unwrap();
-            cursor.1 += 1;
+            cursor.1 += 2;
         },
+    }
+
+    match state.game {
+        g@Final(_) => {
+            if g.is_tie() {
+                write_at(cursor, f, "tie game!!!")
+            } else {
+                write_at(cursor, f, "you win!!!")
+            };
+            cursor.1 += 1;
+            cursor.0 = 8;
+            write_at(cursor, f, "press any key to exit.");
+        },
+        _ => {},
     }
     
     f.flush().unwrap();
@@ -342,6 +354,7 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
     let action = ask(input);
     match (action, state.game) {
         (Action::Quit, _) => { /* exits */ },
+        (_, g@Final(_)) => { /* exits on any key press */},
         (Action::Submit, _) => {
             let selection = match state.selection {
                 Left(cursor) => Left(ALL_PIECES[cursor.1 + if cursor.0 {0} else {8}]),
@@ -355,14 +368,6 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
                 None => run(output, input, State { game: state.game, selection: state.selection, error: Some("try again.") }),
                 Some(g) => run(output, input,State { game: g, selection: new_cursor, error: state.error }),
             }
-        },
-        (_, g@Final(_)) => {
-            if g.is_tie() {
-                write_at(BOTTOM, output, "tie game!!!")
-            } else {
-                write_at(BOTTOM, output, "you win!!!")
-            }
-            std::process::exit(1)
         },
         (Action::Move(Direction::Up), Pass(_)) => match state.selection {
             Left(cursor) => run(output, input, State { game: state.game, selection: Left((!cursor.0, cursor.1)), error: None }),
