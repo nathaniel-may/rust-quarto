@@ -12,7 +12,8 @@ pub use board::{
     Board, 
     Idx,
     Idx::{I1, I2, I3, I4},
-    new_board
+    new_board,
+    ALL_SQUARES
 };
 pub use self::Game::{Pass, Place, Final};
 

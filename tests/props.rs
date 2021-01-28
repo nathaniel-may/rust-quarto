@@ -9,24 +9,6 @@ use quickcheck_macros::*;
 use quickcheck::{Arbitrary, Gen};
 use Turn::*;
 
-static ALL_SQUARES: [(Idx, Idx); 16] = [
-    (I1,I1),
-    (I1,I2),
-    (I1,I3),
-    (I1,I4),
-    (I2,I1),
-    (I2,I2),
-    (I2,I3),
-    (I2,I4),
-    (I3,I1),
-    (I3,I2),
-    (I3,I3),
-    (I3,I4),
-    (I4,I1),
-    (I4,I2),
-    (I4,I3),
-    (I4,I4),
-];
 
 #[derive(Copy, Clone)]
 #[derive(Debug)]

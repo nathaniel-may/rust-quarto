@@ -96,3 +96,22 @@ impl Idx {
         }
     }
 }
+
+pub static ALL_SQUARES: [(Idx, Idx); 16] = [
+    (Idx::I1, Idx::I1),
+    (Idx::I1, Idx::I2),
+    (Idx::I1, Idx::I3),
+    (Idx::I1, Idx::I4),
+    (Idx::I2, Idx::I1),
+    (Idx::I2, Idx::I2),
+    (Idx::I2, Idx::I3),
+    (Idx::I2, Idx::I4),
+    (Idx::I3, Idx::I1),
+    (Idx::I3, Idx::I2),
+    (Idx::I3, Idx::I3),
+    (Idx::I3, Idx::I4),
+    (Idx::I4, Idx::I1),
+    (Idx::I4, Idx::I2),
+    (Idx::I4, Idx::I3),
+    (Idx::I4, Idx::I4),
+];
