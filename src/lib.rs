@@ -21,12 +21,14 @@ use std::collections::HashMap;
 use piece::Attribute::*;
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 pub struct PassGame {
     board: Board,
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 pub struct PlaceGame {
     board: Board,
@@ -34,12 +36,14 @@ pub struct PlaceGame {
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 pub struct FinalGame {
     board: Board,
 }
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 pub enum Game {
     Pass(PassGame),

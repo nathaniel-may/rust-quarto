@@ -3,6 +3,7 @@ use std::fmt;
 
 
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 pub struct Board {
     // private field prevents ownership changes and therefor outside mutation
@@ -76,6 +77,7 @@ impl fmt::Display for Board {
 
 // TODO Eq
 #[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 pub enum Idx {
     I1,
