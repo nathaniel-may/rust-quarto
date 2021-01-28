@@ -49,10 +49,11 @@ fn main() {
             termion::cursor::Hide).unwrap();
 
         // print banner
-        for (line, idx) in BANNER.iter().zip(1..7) { 
+        for (idx, line) in BANNER.iter().enumerate() {
+            let i = (idx + 1) as u16;
             write!(
                 stdout, "{}{}",
-                termion::cursor::Goto(1, idx),
+                termion::cursor::Goto(1, i),
                 line
             ).unwrap();
         }
