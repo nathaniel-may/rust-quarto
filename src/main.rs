@@ -34,7 +34,7 @@ fn main() {
     // initial state of the application to be rendered
     let initial_state = State {
         game: Pass(quarto::new_game()),
-        selection: Left(0),
+        selection: Left((true, 0)),
         error: None,
     };
     
@@ -232,21 +232,22 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
 
     cursor.0 = 2;
     // write pass menu row 1
-    let mut piece_count = 0;
+    let mut piece_cursor = (true, 0);
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
-        write_piece(f, &Some(*p), either::Left(piece_count) == state.selection);
+        write_piece(f, &Some(*p), either::Left(piece_cursor) == state.selection);
         f.write_fmt(format_args!(" ")).unwrap();
-        piece_count += 1;
+        piece_cursor.1 += 1;
     }
     cursor.1 += 1;
 
     // write pass menu row 2
+    piece_cursor = (false, 0);
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
-        write_piece(f, &Some(*p), either::Left(piece_count) == state.selection);
+        write_piece(f, &Some(*p), either::Left(piece_cursor) == state.selection);
         f.write_fmt(format_args!(" ")).unwrap();
-        piece_count += 1;
+        piece_cursor.1 += 1;
     }
     cursor.1 += 1;
 
@@ -279,7 +280,7 @@ struct Cli {
 #[derive(Debug)]
 struct State {
     game: Game,
-    selection: Either<usize, (Idx, Idx)>,
+    selection: Either<(bool, usize), (Idx, Idx)>,
     error: Option<&'static str>,
 }
 
@@ -333,7 +334,7 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
         (Action::Quit, _) => { /* exits */ },
         (Action::Submit, _) => {
             let selection = match state.selection {
-                Left(i) => Left(ALL_PIECES[i]),
+                Left(cursor) => Left(ALL_PIECES[cursor.1 + if cursor.0 {0} else {8}]),
                 Right(square) => Right(square),
             };
             match play(state.game, selection) {
@@ -349,15 +350,21 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
             }
             std::process::exit(1)
         },
-        (Action::Move(Direction::Up), Pass(_)) => run(output, input, state),
-        (Action::Move(Direction::Down), Pass(_)) => run(output, input, state),
+        (Action::Move(Direction::Up), Pass(_)) => match state.selection {
+            Left(cursor) => run(output, input, State { game: state.game, selection: Left((!cursor.0, cursor.1)), error: None }),
+            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
+        },
+        (Action::Move(Direction::Down), Pass(_)) => match state.selection {
+            Left(cursor) => run(output, input, State { game: state.game, selection: Left((!cursor.0, cursor.1)), error: None }),
+            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
+        },
         (Action::Move(Direction::Left), Pass(_)) => match state.selection {
-            Left(i) => run(output, input, State { game: state.game, selection: Left(if i==0 {0} else {i-1}), error: None }),
-            Right(_) => run(output, input, State { game: state.game, selection: Left(0), error: None }), 
+            Left(cursor) => run(output, input, State { game: state.game, selection: Left((cursor.0, if cursor.1==0 {0} else {cursor.1-1})), error: None }),
+            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Right), Pass(_)) => match state.selection {
-            Left(i) => run(output, input, State { game: state.game, selection: Left(min(16, i+1)), error: None }),
-            Right(_) => run(output, input, State { game: state.game, selection: Left(0), error: None }), 
+            Left(cursor) => run(output, input, State { game: state.game, selection: Left((cursor.0, min(7, cursor.1+1))), error: None }),
+            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(_), Place(_)) => run(output, input, state), // TODO STUB
     }
