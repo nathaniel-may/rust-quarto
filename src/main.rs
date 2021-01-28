@@ -129,8 +129,23 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
         f.write_fmt(format_args!("{}{}", termion::cursor::Goto(1, cursor_row), row_s)).unwrap();
         cursor_row += 1;
     };
+    cursor_row += 1;
 
-    // display any error messages
+    // write pass menu row 1
+    f.write_fmt(format_args!("{}", termion::cursor::Goto(1, cursor_row))).unwrap();
+    for p in &ALL_PIECES[..8] {
+        f.write_fmt(format_args!("{} ", p)).unwrap();
+    }
+    cursor_row += 1;
+
+    // write pass menu row 2
+    f.write_fmt(format_args!("{}", termion::cursor::Goto(1, cursor_row))).unwrap();
+    for p in &ALL_PIECES[8..] {
+        f.write_fmt(format_args!("{} ", p)).unwrap();
+    }
+    cursor_row += 1;
+
+    // write any error messages
     match state.error {
         None => {},
         Some(e) => {
