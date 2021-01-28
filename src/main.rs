@@ -109,6 +109,28 @@ fn clear<W: io::Write>(f: &mut W) {
     f.flush().unwrap();
 }
 
+fn write_state<W: io::Write>(f: &mut W, state: State)  {
+    // clear all output
+    f.write_fmt(format_args!("{}", termion::clear::All)).unwrap();
+
+    // write game board out // TODO display passed piece, piece menu, and "cursor" 
+    let mut s: String = "".to_owned();
+    for (idx, row) in state.game.board().raw().iter().enumerate() {
+        let mut row_s: String = "| ".to_owned();
+        for p in row {
+            match p {
+                None => row_s = row_s + "     | ",
+                Some(p) => row_s = row_s + &p.to_string() + " | ",
+            };
+        };
+        row_s.pop(); // remove trailing space char
+        let i = (idx + 1) as u16;
+        f.write_fmt(format_args!("{}{}", termion::cursor::Goto(1, i), row_s)).unwrap();
+    };
+    
+    f.flush().unwrap();
+}
+
 #[derive(StructOpt)]
 struct Cli {
     // takes no arguments
@@ -167,8 +189,7 @@ fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
 }
 
 fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, state: State) {
-    clear(output);
-    write_at(ORIGIN, output, "game"); // TODO stub
+    write_state(output, state);
     let action = ask(input);
     match (action, state.game) {
         (Action::Quit, _) => { /* exits */ },
