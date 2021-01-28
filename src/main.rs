@@ -185,18 +185,20 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     };
     cursor.1 += 1;
 
-    cursor.0 = 1;
+    cursor.0 = 2;
     // write pass menu row 1
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
-        f.write_fmt(format_args!("{} ", p)).unwrap();
+        write_piece(f, &Some(*p));
+        f.write_fmt(format_args!(" ")).unwrap();
     }
     cursor.1 += 1;
 
     // write pass menu row 2
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
-        f.write_fmt(format_args!("{} ", p)).unwrap();
+        write_piece(f, &Some(*p));
+        f.write_fmt(format_args!(" ")).unwrap();
     }
     cursor.1 += 1;
 
