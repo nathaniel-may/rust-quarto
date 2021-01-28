@@ -112,6 +112,58 @@ fn write_banner<W: io::Write>(f: &mut W) {
     }
 }
 
+fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>) {
+    let mut s: String = String::from("");
+    match op {
+        None => f.write_fmt(format_args!("{}","   ")).unwrap(),
+        Some(p) => {
+            match p.top {
+                Top::Flat => s = s + " ",
+                Top::Hole => s = s + "○",
+            };
+            match p.shape {
+                Shape::Round => s = String::from("(") + &s + ")",
+                Shape::Square => s = String::from("[") + &s + "]",
+            };
+
+            match (p.color, p.height) {
+                (Color::White, Height::Tall) => 
+                    f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
+                        c = color::Fg(color::Red),
+                        u = style::Underline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::White, Height::Short) => 
+                    f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
+                        c = color::Fg(color::Red),
+                        u = style::NoUnderline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::Black, Height::Tall) => 
+                    f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
+                        c = color::Fg(color::Blue),
+                        u = style::Underline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::Black, Height::Short) => 
+                    f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
+                        c = color::Fg(color::Blue),
+                        u = style::NoUnderline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+            }
+        },
+    }
+}
+
 fn write_state<W: io::Write>(f: &mut W, state: State)  {
     // clear all output
     f.write_fmt(format_args!("{}", termion::clear::All)).unwrap();
@@ -120,18 +172,15 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
 
     let mut cursor: (u16, u16) = (4, 8);
 
-    // write game board out // TODO display passed piece, piece menu, and "cursor" 
-    let mut s: String = "".to_owned();
+    // write game board out // TODO display passed piece, piece menu, and "cursor"
     for row in state.game.board().raw().iter() {
-        let mut row_s: String = "| ".to_owned();
+        f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
         for p in row {
-            match p {
-                None => row_s = row_s + "     | ",
-                Some(p) => row_s = row_s + &p.to_string() + " | ",
-            };
+            f.write_fmt(format_args!("{}", "| ")).unwrap();
+            write_piece(f, p);
+            f.write_fmt(format_args!("{}", " ")).unwrap();
         };
-        row_s.pop(); // remove trailing space char
-        f.write_fmt(format_args!("{}{}", termion::cursor::Goto(cursor.0, cursor.1), row_s)).unwrap();
+        f.write_fmt(format_args!("{}", "|")).unwrap();
         cursor.1 += 1;
     };
     cursor.1 += 1;
