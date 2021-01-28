@@ -14,6 +14,14 @@ use either::{Either, Left, Right};
 use std::cmp::{min, max};
 use termion::raw::RawTerminal;
 
+static BANNER: [&str; 6] = [
+    "  ____                   _",
+    " / __ \\                 | |",
+    "| |  | |_   _  __ _ _ __| |_ ___",
+    "| |  | | | | |/ _` | '__| __/ _ \\",
+    "| |__| | |_| | (_| | |  | || (_) |",
+    " \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/"
+];
 
 fn main() {
     // guards against passing arguments that won't be used.
@@ -39,18 +47,16 @@ fn main() {
             termion::cursor::Goto(1, 1),
             // Hide the cursor.
             termion::cursor::Hide).unwrap();
-        write!(stdout, "{}  ____                   _",
-            termion::cursor::Goto(1, 1)).unwrap();
-        write!(stdout, "{} / __ \\                 | |",
-            termion::cursor::Goto(1, 2)).unwrap();
-        write!(stdout, "{}| |  | |_   _  __ _ _ __| |_ ___",
-            termion::cursor::Goto(1, 3)).unwrap();
-        write!(stdout, "{}| |  | | | | |/ _` | '__| __/ _ \\",
-            termion::cursor::Goto(1, 4)).unwrap();
-        write!(stdout, "{}| |__| | |_| | (_| | |  | || (_) |",
-            termion::cursor::Goto(1, 5)).unwrap();
-        write!(stdout, "{} \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/",
-            termion::cursor::Goto(1, 6)).unwrap();
+
+        // print banner
+        for (line, idx) in BANNER.iter().zip(1..7) { 
+            write!(
+                stdout, "{}{}",
+                termion::cursor::Goto(1, idx),
+                line
+            ).unwrap();
+        }
+
         write!(stdout, "{}q to exit. <Enter> to continue.",
             termion::cursor::Goto(1, 8)).unwrap();
 
