@@ -13,6 +13,7 @@ use std::io::{Write, stdout};
 use either::{Either, Left, Right};
 use std::cmp::{min, max};
 use termion::raw::RawTerminal;
+use std::fmt;
 
 static BANNER: [&str; 6] = [
     "  ____                   _",
@@ -27,6 +28,7 @@ fn main() {
     // guards against passing arguments that won't be used.
     let _args = Cli::from_args();
 
+    // initial state of the application to be rendered
     let initial_state = State {
         game: Pass(quarto::new_game()),
         selection: Left(0),
@@ -34,18 +36,13 @@ fn main() {
     };
     
     {
-        // Use asynchronous stdin
         let mut stdin = termion::async_stdin().keys();
-
-        // Get the standard output stream and go to raw mode.
         let mut stdout = stdout().into_raw_mode().unwrap();
-
+    
+        // prep the terminal
         write!(stdout, "{}{}{}",
-            // Clear the screen.
             termion::clear::All,
-            // Goto (1,1).
             termion::cursor::Goto(1, 1),
-            // Hide the cursor.
             termion::cursor::Hide).unwrap();
 
         // print banner
@@ -63,52 +60,44 @@ fn main() {
 
         stdout.flush().unwrap();
 
-        // awkward closure here to access stdout
-        let mut run = |state: State, action: Action| {
-            render("game");
-            match (action, state.game) {
-                (Action::Quit, _) => std::process::exit(1),
-                (Action::Submit, _) => {
-                    let selection = match state.selection {
-                        Left(i) => Left(ALL_PIECES[i]),
-                        Right(square) => Right(square),
-                    };
-                    match play(state.game, selection) {
-                        None => State { game: state.game, selection: state.selection, error: Some("try again.") },
-                        Some(g) => State { game: g, selection: state.selection, error: state.error },
-                    }
+        // wait for user
+        let mut play = true;
+        loop {
+            let input = stdin.next();
+            match input {
+                None => {
+                    thread::sleep(Duration::from_millis(50))
                 },
-                (_, g@Final(_)) => {
-                    if g.is_tie() {
-                        write!(stdout, "tie game!!!").unwrap()
-                    } else {
-                        write!(stdout, "you win!!!").unwrap()
-                    }
-                    std::process::exit(1)
+                // throwing away errors
+                Some(Err(_)) => {
+                    thread::sleep(Duration::from_millis(50))
                 },
-                (Action::Move(Direction::Up), Pass(_)) => state,
-                (Action::Move(Direction::Down), Pass(_)) => state,
-                (Action::Move(Direction::Left), Pass(_)) => match state.selection {
-                    Left(i) => State { game: state.game, selection: Left(min(0, i-1)), error: None },
-                    Right(_) => State { game: state.game, selection: Left(0), error: None }, 
+                Some(Ok(key)) => match key {
+                    Key::Char('q')  => { play = false; break },
+                    Key::Char('\n') => break,
+                    _               => thread::sleep(Duration::from_millis(50)),
                 },
-                (Action::Move(Direction::Right), Pass(_)) => match state.selection {
-                    Left(i) => State { game: state.game, selection: Left(min(16, i+1)), error: None },
-                    Right(_) => State { game: state.game, selection: Left(0), error: None }, 
-                },
-                (Action::Move(_), Place(_)) => state, // TODO STUB
             }
-        };
+        }
 
-        // run the app
-        run(initial_state, ask(&mut stdin));
+        // run the app, or skip and go straight to the exit.
+        if play {
+            run(&mut stdout, &mut stdin, initial_state);
+        }
 
         // show cursor, clear screen
         writeln!(stdout, "{}{}{}", 
             termion::cursor::Show,
             termion::clear::All,
-            termion::cursor::Goto(1, 1)).unwrap();
+            termion::cursor::Goto(1, 1)
+        ).unwrap();
     }
+    println!("{}", "Done.")
+}
+
+// used instead of the write! macro
+fn write<W: io::Write>(f: &mut W, s: &str) {
+    f.write_fmt(format_args!("{}", s)).unwrap();
 }
 
 #[derive(StructOpt)]
@@ -175,6 +164,43 @@ fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
             Key::Down       => Action::Move(Direction::Down),
             _               => ask(stdin), // TODO unrecognized key message
         },
+    }
+}
+
+fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, state: State) {
+    render("game"); // TODO stub
+    let action = ask(input);
+    match (action, state.game) {
+        (Action::Quit, _) => { /* exits */ },
+        (Action::Submit, _) => {
+            let selection = match state.selection {
+                Left(i) => Left(ALL_PIECES[i]),
+                Right(square) => Right(square),
+            };
+            match play(state.game, selection) {
+                None => run(output, input, State { game: state.game, selection: state.selection, error: Some("try again.") }),
+                Some(g) => run(output, input,State { game: g, selection: state.selection, error: state.error }),
+            }
+        },
+        (_, g@Final(_)) => {
+            if g.is_tie() {
+                write(output, "tie game!!!")
+            } else {
+                write(output, "you win!!!")
+            }
+            std::process::exit(1)
+        },
+        (Action::Move(Direction::Up), Pass(_)) => run(output, input, state),
+        (Action::Move(Direction::Down), Pass(_)) => run(output, input, state),
+        (Action::Move(Direction::Left), Pass(_)) => match state.selection {
+            Left(i) => run(output, input, State { game: state.game, selection: Left(min(0, i-1)), error: None }),
+            Right(_) => run(output, input, State { game: state.game, selection: Left(0), error: None }), 
+        },
+        (Action::Move(Direction::Right), Pass(_)) => match state.selection {
+            Left(i) => run(output, input, State { game: state.game, selection: Left(min(16, i+1)), error: None }),
+            Right(_) => run(output, input, State { game: state.game, selection: Left(0), error: None }), 
+        },
+        (Action::Move(_), Place(_)) => run(output, input, state), // TODO STUB
     }
 }
 
