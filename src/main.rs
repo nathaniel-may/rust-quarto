@@ -24,6 +24,9 @@ static BANNER: [&str; 6] = [
     " \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/"
 ];
 
+static ORIGIN: (u16, u16) = (1, 1);
+static BOTTOM: (u16, u16) = (1, 6);
+
 fn main() {
     // guards against passing arguments that won't be used.
     let _args = Cli::from_args();
@@ -74,7 +77,7 @@ fn main() {
                 },
                 Some(Ok(key)) => match key {
                     Key::Char('q')  => { play = false; break },
-                    Key::Char('\n') => break,
+                    Key::Char('\n') => { play = true; break },
                     _               => thread::sleep(Duration::from_millis(50)),
                 },
             }
@@ -96,8 +99,14 @@ fn main() {
 }
 
 // used instead of the write! macro
-fn write<W: io::Write>(f: &mut W, s: &str) {
-    f.write_fmt(format_args!("{}", s)).unwrap();
+fn write_at<W: io::Write>(pos: (u16, u16), f: &mut W, s: &str) {
+    f.write_fmt(format_args!("{}{}", termion::cursor::Goto(pos.0, pos.1), s)).unwrap();
+    f.flush().unwrap();
+}
+
+fn clear<W: io::Write>(f: &mut W) {
+    f.write_fmt(format_args!("{}", termion::clear::All)).unwrap();
+    f.flush().unwrap();
 }
 
 #[derive(StructOpt)]
@@ -133,16 +142,6 @@ enum Direction {
     Down,
 }
 
-fn render<A: Display>(content: A) {
-    fn render0<A: Display>(content: A) -> Result<(), io::Error> {
-        let mut screen = AlternateScreen::from(stdout());
-        writeln!(screen, "{}", content)?;
-        screen.flush()
-    }
-
-    render0(content).unwrap()
-}
-
 fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
     let input = stdin.next();
     match input {
@@ -168,7 +167,8 @@ fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
 }
 
 fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, state: State) {
-    render("game"); // TODO stub
+    clear(output);
+    write_at(ORIGIN, output, "game"); // TODO stub
     let action = ask(input);
     match (action, state.game) {
         (Action::Quit, _) => { /* exits */ },
@@ -184,9 +184,9 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
         },
         (_, g@Final(_)) => {
             if g.is_tie() {
-                write(output, "tie game!!!")
+                write_at(BOTTOM, output, "tie game!!!")
             } else {
-                write(output, "you win!!!")
+                write_at(BOTTOM, output, "you win!!!")
             }
             std::process::exit(1)
         },
