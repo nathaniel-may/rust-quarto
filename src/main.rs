@@ -105,9 +105,11 @@ fn write_banner<W: io::Write>(f: &mut W) {
     for (idx, line) in BANNER.iter().enumerate() {
         let i = (idx + 1) as u16;
         f.write_fmt(format_args!(
-            "{}{}",
+            "{}{}{}{}",
             termion::cursor::Goto(2, i),
-            line
+            color::Fg(color::Rgb(138, 43, 226)),
+            line,
+            color::Fg(color::Reset)
         )).unwrap();
     }
 }
