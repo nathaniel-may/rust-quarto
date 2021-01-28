@@ -52,7 +52,7 @@ pub enum Game {
 }
 
 impl Game {
-    fn board(&self) -> &Board {
+    pub fn board(&self) -> &Board {
         match self {
             Game::Pass(g)  => &g.board,
             Game::Place(g) => &g.board,
