@@ -128,8 +128,8 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
                 Shape::Square => s = String::from("[") + &s + "]",
             };
 
-            match (p.color, p.height) {
-                (Color::White, Height::Tall) => 
+            match (p.color, p.height, selected) {
+                (Color::White, Height::Tall, false) => 
                     f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
                         c = color::Fg(color::Red),
                         u = style::Underline,
@@ -137,7 +137,7 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
                         reset_color = color::Fg(color::Reset),
                         reset_underline = style::Reset
                     )).unwrap(),
-                (Color::White, Height::Short) => 
+                (Color::White, Height::Short, false) => 
                     f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
                         c = color::Fg(color::Red),
                         u = style::NoUnderline,
@@ -145,7 +145,7 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
                         reset_color = color::Fg(color::Reset),
                         reset_underline = style::Reset
                     )).unwrap(),
-                (Color::Black, Height::Tall) => 
+                (Color::Black, Height::Tall, false) => 
                     f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
                         c = color::Fg(color::Blue),
                         u = style::Underline,
@@ -153,12 +153,52 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
                         reset_color = color::Fg(color::Reset),
                         reset_underline = style::Reset
                     )).unwrap(),
-                (Color::Black, Height::Short) => 
+                (Color::Black, Height::Short, false) => 
                     f.write_fmt(format_args!("{c}{u}{piece}{reset_color}{reset_underline}",
                         c = color::Fg(color::Blue),
                         u = style::NoUnderline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::White, Height::Tall, true) => 
+                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                        c = color::Fg(color::Red),
+                        bg = color::Bg(color::Rgb(128,128,128)),
+                        u = style::Underline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_bg = color::Bg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::White, Height::Short, true) => 
+                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                        c = color::Fg(color::Red),
+                        bg = color::Bg(color::Rgb(128,128,128)),
+                        u = style::NoUnderline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_bg = color::Bg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::Black, Height::Tall, true) => 
+                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                        c = color::Fg(color::Blue),
+                        bg = color::Bg(color::Rgb(128,128,128)),
+                        u = style::Underline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_bg = color::Bg(color::Reset),
+                        reset_underline = style::Reset
+                    )).unwrap(),
+                (Color::Black, Height::Short, true) => 
+                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                        c = color::Fg(color::Blue),
+                        bg = color::Bg(color::Rgb(128,128,128)),
+                        u = style::NoUnderline,
+                        piece = s,
+                        reset_color = color::Fg(color::Reset),
+                        reset_bg = color::Bg(color::Reset),
                         reset_underline = style::Reset
                     )).unwrap(),
             }
@@ -192,18 +232,21 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
 
     cursor.0 = 2;
     // write pass menu row 1
+    let mut piece_count = 0;
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
-        write_piece(f, &Some(*p), false);
+        write_piece(f, &Some(*p), either::Left(piece_count) == state.selection);
         f.write_fmt(format_args!(" ")).unwrap();
+        piece_count += 1;
     }
     cursor.1 += 1;
 
     // write pass menu row 2
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
-        write_piece(f, &Some(*p), false);
+        write_piece(f, &Some(*p), either::Left(piece_count) == state.selection);
         f.write_fmt(format_args!(" ")).unwrap();
+        piece_count += 1;
     }
     cursor.1 += 1;
 
