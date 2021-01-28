@@ -48,18 +48,10 @@ fn main() {
             termion::cursor::Goto(1, 1),
             termion::cursor::Hide).unwrap();
 
-        // print banner
-        for (idx, line) in BANNER.iter().enumerate() {
-            let i = (idx + 1) as u16;
-            write!(
-                stdout, "{}{}",
-                termion::cursor::Goto(1, i),
-                line
-            ).unwrap();
-        }
+        write_banner(&mut stdout);
 
         write!(stdout, "{}q to exit. <Enter> to continue.",
-            termion::cursor::Goto(1, 8)).unwrap();
+            termion::cursor::Goto(3, 8)).unwrap();
 
         stdout.flush().unwrap();
 
@@ -109,11 +101,24 @@ fn clear<W: io::Write>(f: &mut W) {
     f.flush().unwrap();
 }
 
+fn write_banner<W: io::Write>(f: &mut W) {
+    for (idx, line) in BANNER.iter().enumerate() {
+        let i = (idx + 1) as u16;
+        f.write_fmt(format_args!(
+            "{}{}",
+            termion::cursor::Goto(2, i),
+            line
+        )).unwrap();
+    }
+}
+
 fn write_state<W: io::Write>(f: &mut W, state: State)  {
     // clear all output
     f.write_fmt(format_args!("{}", termion::clear::All)).unwrap();
 
-    let mut cursor_row = 1;
+    write_banner(f);
+
+    let mut cursor: (u16, u16) = (4, 8);
 
     // write game board out // TODO display passed piece, piece menu, and "cursor" 
     let mut s: String = "".to_owned();
@@ -126,36 +131,37 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
             };
         };
         row_s.pop(); // remove trailing space char
-        f.write_fmt(format_args!("{}{}", termion::cursor::Goto(1, cursor_row), row_s)).unwrap();
-        cursor_row += 1;
+        f.write_fmt(format_args!("{}{}", termion::cursor::Goto(cursor.0, cursor.1), row_s)).unwrap();
+        cursor.1 += 1;
     };
-    cursor_row += 1;
+    cursor.1 += 1;
 
+    cursor.0 = 1;
     // write pass menu row 1
-    f.write_fmt(format_args!("{}", termion::cursor::Goto(1, cursor_row))).unwrap();
+    f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
         f.write_fmt(format_args!("{} ", p)).unwrap();
     }
-    cursor_row += 1;
+    cursor.1 += 1;
 
     // write pass menu row 2
-    f.write_fmt(format_args!("{}", termion::cursor::Goto(1, cursor_row))).unwrap();
+    f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
         f.write_fmt(format_args!("{} ", p)).unwrap();
     }
-    cursor_row += 1;
+    cursor.1 += 1;
 
     // write any error messages
     match state.error {
         None => {},
         Some(e) => {
             f.write_fmt(format_args!("{pos}{red}{err}{reset}",
-                pos = termion::cursor::Goto(1, cursor_row),
+                pos = termion::cursor::Goto(1, cursor.1),
                 red = color::Fg(color::Red),
                 err = e,
                 reset = color::Fg(color::Reset)
             )).unwrap();
-            cursor_row += 1;
+            cursor.1 += 1;
         },
     }
     
