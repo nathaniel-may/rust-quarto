@@ -347,9 +347,13 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
                 Left(cursor) => Left(ALL_PIECES[cursor.1 + if cursor.0 {0} else {8}]),
                 Right(square) => Right(square),
             };
+            let new_cursor = match state.selection {
+                Left(_) => Right((I1, I1)),
+                Right(_) => Left((true, 0)),
+            };
             match play(state.game, selection) {
                 None => run(output, input, State { game: state.game, selection: state.selection, error: Some("try again.") }),
-                Some(g) => run(output, input,State { game: g, selection: state.selection, error: state.error }),
+                Some(g) => run(output, input,State { game: g, selection: new_cursor, error: state.error }),
             }
         },
         (_, g@Final(_)) => {
