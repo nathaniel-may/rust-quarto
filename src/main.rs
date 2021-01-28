@@ -209,9 +209,9 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
             f.write_fmt(format_args!("{}", "| ")).unwrap();
             write_piece(f, p, either::Right(square) == state.selection);
             f.write_fmt(format_args!("{}", " ")).unwrap();
-            square.1 = next(square.1);
+            square.1 = next(square.1).unwrap_or(I1);
         };
-        square.0 = next(square.0);
+        square.0 = next(square.0).unwrap_or(square.0);
         f.write_fmt(format_args!("{}", "|")).unwrap();
         cursor.1 += 1;
     };
@@ -348,11 +348,11 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
             }
         },
         (Action::Move(Direction::Up), Pass(_)) => match state.selection {
-            Left(cursor) => run(output, input, State { game: state.game, selection: Left((!cursor.0, cursor.1)), error: None }),
+            Left(cursor) => run(output, input, State { game: state.game, selection: Left((true, cursor.1)), error: None }),
             Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Down), Pass(_)) => match state.selection {
-            Left(cursor) => run(output, input, State { game: state.game, selection: Left((!cursor.0, cursor.1)), error: None }),
+            Left(cursor) => run(output, input, State { game: state.game, selection: Left((false, cursor.1)), error: None }),
             Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Left), Pass(_)) => match state.selection {
@@ -365,19 +365,19 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
         },
         (Action::Move(Direction::Up), Place(_)) => match state.selection {
             Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((prev(square.0), square.1)), error: None }), 
+            Right(square) => run(output, input, State { game: state.game, selection: Right((prev(square.0).unwrap_or(square.0), square.1)), error: None }), 
         },
         (Action::Move(Direction::Down), Place(_)) => match state.selection {
             Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((next(square.0), square.1)), error: None }), 
+            Right(square) => run(output, input, State { game: state.game, selection: Right((next(square.0).unwrap_or(square.0), square.1)), error: None }), 
         },
         (Action::Move(Direction::Left), Place(_)) => match state.selection {
             Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, prev(square.1))), error: None }), 
+            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, prev(square.1).unwrap_or(square.1))), error: None }), 
         },
         (Action::Move(Direction::Right), Place(_)) => match state.selection {
             Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, next(square.1))), error: None }), 
+            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, next(square.1).unwrap_or(square.1))), error: None }), 
         },
     }
 }
@@ -408,20 +408,20 @@ fn merge<A>(z: Either<A, A>) -> A {
     }
 }
 
-fn next(i: Idx) -> Idx {
+fn next(i: Idx) -> Option<Idx> {
     match i {
-        I1 => I2,
-        I2 => I3,
-        I3 => I4,
-        I4 => I1,
+        I1 => Some(I2),
+        I2 => Some(I3),
+        I3 => Some(I4),
+        I4 => None,
     }
 }
 
-fn prev(i: Idx) -> Idx {
+fn prev(i: Idx) -> Option<Idx> {
     match i {
-        I1 => I4,
-        I2 => I1,
-        I3 => I2,
-        I4 => I3,
+        I1 => None,
+        I2 => Some(I1),
+        I3 => Some(I2),
+        I4 => Some(I3),
     }
 }
