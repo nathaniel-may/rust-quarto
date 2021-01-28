@@ -175,13 +175,16 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     let mut cursor: (u16, u16) = (4, 8);
 
     // write game board out // TODO display passed piece, piece menu, and "cursor"
+    let mut square = (I1, I1);
     for row in state.game.board().raw().iter() {
         f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
         for p in row {
             f.write_fmt(format_args!("{}", "| ")).unwrap();
-            write_piece(f, p, false);
+            write_piece(f, p, either::Right(square) == state.selection);
             f.write_fmt(format_args!("{}", " ")).unwrap();
+            square.0 = next(square.0);
         };
+        square.1 = next(square.1);
         f.write_fmt(format_args!("{}", "|")).unwrap();
         cursor.1 += 1;
     };
