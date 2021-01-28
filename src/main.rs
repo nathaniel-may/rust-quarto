@@ -193,7 +193,7 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
         (Action::Move(Direction::Up), Pass(_)) => run(output, input, state),
         (Action::Move(Direction::Down), Pass(_)) => run(output, input, state),
         (Action::Move(Direction::Left), Pass(_)) => match state.selection {
-            Left(i) => run(output, input, State { game: state.game, selection: Left(min(0, i-1)), error: None }),
+            Left(i) => run(output, input, State { game: state.game, selection: Left(if i==0 {0} else {i-1}), error: None }),
             Right(_) => run(output, input, State { game: state.game, selection: Left(0), error: None }), 
         },
         (Action::Move(Direction::Right), Pass(_)) => match state.selection {
