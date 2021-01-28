@@ -75,6 +75,17 @@ impl Game {
     pub fn piece_count(&self) -> usize {
         self.board().piece_count()
     }
+
+    pub fn get_piece_at(&self, square: (Idx, Idx)) -> Option<Piece> {
+        self.board().raw()[square.0.to_i()][square.1.to_i()]
+    }
+
+    pub fn get_passed_piece(&self) -> Option<Piece> {
+        match self {
+            Place(g) => Some(g.passed),
+            _ => None,
+        }
+    }
 }
 
 impl PassGame {
