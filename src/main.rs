@@ -117,7 +117,17 @@ fn write_banner<W: io::Write>(f: &mut W) {
 fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
     let mut s: String = String::from("");
     match op {
-        None => f.write_fmt(format_args!("{}","   ")).unwrap(),
+        None => {
+            if selected {
+                f.write_fmt(format_args!("{bg}{empty}{reset_bg}",
+                    bg = color::Bg(color::Rgb(128,128,128)),
+                    empty = "   ",
+                    reset_bg = color::Bg(color::Reset)
+                )).unwrap()
+            } else {
+                f.write_fmt(format_args!("{}","   ")).unwrap()
+            }
+        },
         Some(p) => {
             match p.top {
                 Top::Flat => s = s + " ",
@@ -366,7 +376,22 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
             Left(cursor) => run(output, input, State { game: state.game, selection: Left((cursor.0, min(7, cursor.1+1))), error: None }),
             Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
-        (Action::Move(_), Place(_)) => run(output, input, state), // TODO STUB
+        (Action::Move(Direction::Up), Place(_)) => match state.selection {
+            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, prev(square.1))), error: None }), 
+        },
+        (Action::Move(Direction::Down), Place(_)) => match state.selection {
+            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, next(square.1))), error: None }), 
+        },
+        (Action::Move(Direction::Right), Place(_)) => match state.selection {
+            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => run(output, input, State { game: state.game, selection: Right((next(square.0), square.1)), error: None }), 
+        },
+        (Action::Move(Direction::Left), Place(_)) => match state.selection {
+            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => run(output, input, State { game: state.game, selection: Right((prev(square.0), square.1)), error: None }), 
+        },
     }
 }
 
