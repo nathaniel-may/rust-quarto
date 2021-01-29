@@ -15,12 +15,12 @@ impl Board {
         self.pieces.clone()
     }
 
-    pub fn contains(&self, p: Piece) -> bool {
+    pub fn contains(&self, p: &Piece) -> bool {
         let mut found = false;
         for row in &self.pieces {
             for piece in row {
                 piece.map(|x|
-                    if x == p { found = true; }
+                    if x == *p { found = true; }
                 );
             };
         };

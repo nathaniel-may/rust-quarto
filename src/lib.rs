@@ -62,6 +62,13 @@ impl Game {
         }
     }
 
+    pub fn contains(&self, p: &Piece) -> bool {
+        self.board().contains(p) || match self {
+            Place(g) => g.passed == *p,
+            _        => false
+        }
+    }
+
     pub fn is_tie(&self) -> bool {
         match self {
             g @ Final(_) => g.board().is_full(),
@@ -91,7 +98,7 @@ impl Game {
 
 impl PassGame {
     pub fn pass(self, p: Piece) -> Option<PlaceGame> {
-        if self.board.contains(p) {
+        if self.board.contains(&p) {
             None
         } else {
             Some(PlaceGame{ board: self.board, passed: p, })
