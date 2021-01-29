@@ -96,7 +96,17 @@ impl Game {
     }
 }
 
+impl FinalGame {
+    pub fn as_game(self) -> Game {
+        Final(self)
+    }
+}
+
 impl PassGame {
+    pub fn as_game(self) -> Game {
+        Pass(self)
+    }
+
     pub fn pass(self, p: Piece) -> Option<PlaceGame> {
         if Pass(self).contains(&p) {
             None
@@ -107,6 +117,10 @@ impl PassGame {
 }
 
 impl PlaceGame {
+    pub fn as_game(self) -> Game {
+        Place(self)
+    }
+
     pub fn place(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
         self.board.place_piece(square, self.passed).map(|b|
             if has_win(&b) || b.is_full() {
