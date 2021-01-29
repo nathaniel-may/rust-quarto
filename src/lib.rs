@@ -97,13 +97,13 @@ impl Game {
 }
 
 impl FinalGame {
-    pub fn as_game(self) -> Game {
+    pub fn to_game(self) -> Game {
         Final(self)
     }
 }
 
 impl PassGame {
-    pub fn as_game(self) -> Game {
+    pub fn to_game(self) -> Game {
         Pass(self)
     }
 
@@ -117,7 +117,7 @@ impl PassGame {
 }
 
 impl PlaceGame {
-    pub fn as_game(self) -> Game {
+    pub fn to_game(self) -> Game {
         Place(self)
     }
 
