@@ -32,7 +32,7 @@ fn main() {
 
     // initial state of the application to be rendered
     let initial_state = State {
-        game: Pass(quarto::new_game()),
+        game: quarto::new_game().to_game(),
         selection: Left((true, 0)),
         error: None,
     };
@@ -385,10 +385,10 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
 fn play(game:Game, selection: Either<Piece, (Idx, Idx)>) -> Option<Game> {
     match (game, selection) {
         (Final(_), _) => None,
-        (Pass(g), Left(p)) => g.pass(p).map(|x| Place(x)),
+        (Pass(g), Left(p)) => g.pass(p).map(|x| x.to_game()),
         (Pass(_), _) => None,
         (Place(g), Right(square)) => g.place(square).map(|y|
-            merge(bimap(y, |x| Final(x), |x| Pass(x)))
+            merge(bimap(y, |x| x.to_game(), |x| x.to_game()))
         ),
         (Place(_), _) => None
     }

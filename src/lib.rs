@@ -108,7 +108,7 @@ impl PassGame {
     }
 
     pub fn pass(self, p: Piece) -> Option<PlaceGame> {
-        if Pass(self).contains(&p) {
+        if self.to_game().contains(&p) {
             None
         } else {
             Some(PlaceGame{ board: self.board, passed: p, })
