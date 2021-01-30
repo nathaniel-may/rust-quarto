@@ -20,6 +20,8 @@ static BANNER: [&str; 6] = [
     " \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/"
 ];
 
+static TICK_MS: Duration = Duration::from_millis(50); 
+
 fn main() {
     // guards against passing arguments that won't be used.
     let _args = Cli::from_args();
@@ -75,7 +77,7 @@ fn main() {
                     action = action_from(stdin.next());
                 }
                 state = step(s, action);
-                thread::sleep(Duration::from_millis(50));
+                thread::sleep(TICK_MS);
             }
         }
 
@@ -287,7 +289,7 @@ fn wait_for_user(input: &mut termion::input::Keys<termion::AsyncReader>, f: fn(t
         },
         // throwing away errors
         _ => {
-            thread::sleep(Duration::from_millis(50));
+            thread::sleep(TICK_MS);
             wait_for_user(input, f)
         },
     }
