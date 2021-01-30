@@ -196,13 +196,19 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
 
     let mut cursor: (u16, u16) = (4, 8);
 
-    // write game board out // TODO display passed piece, piece menu, and "cursor"
+    // write game board out
     let mut square = (I1, I1);
     for row in state.game.board().raw().iter() {
         f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
         for p in row {
+            let passed_or_placed = 
+                if either::Right(square) == state.selection && p.is_none() {
+                    state.game.get_passed_piece()
+                } else  {
+                    *p
+                };
             f.write_fmt(format_args!("{}", "| ")).unwrap();
-            write_piece(f, p, either::Right(square) == state.selection);
+            write_piece(f, &passed_or_placed, either::Right(square) == state.selection);
             f.write_fmt(format_args!("{}", " ")).unwrap();
             square.1 = next(square.1).unwrap_or(I1);
         };
