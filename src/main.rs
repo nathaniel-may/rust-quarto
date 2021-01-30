@@ -134,7 +134,7 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
 
             let color = match p.color {
                 Color::White => color::Fg(color::Rgb(255, 0, 0)),
-                Color::Black => color::Fg(color::Rgb(0, 0, 255)),
+                Color::Black => color::Fg(color::Rgb(0, 64, 255)),
             };
 
             // directly match poorly designed termion types
