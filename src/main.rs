@@ -387,7 +387,8 @@ fn step(state: State, action: Action) -> Option<State> {
             };
             match play(state.game, selection) {
                 None => Some(State { game: state.game, player: state.player, selection: state.selection, error: Some("try again.") }),
-                Some(g) => Some(State { game: g, player: state.player.switch(), selection: new_cursor, error: state.error }),
+                Some(g@Place(_)) => Some(State { game: g, player: state.player.switch(), selection: new_cursor, error: state.error }),
+                Some(g) => Some(State { game: g, player: state.player, selection: new_cursor, error: state.error }),
             }
         },
         (Action::Move(Direction::Up), Pass(_)) => match state.selection {
