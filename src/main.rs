@@ -41,9 +41,18 @@ fn main() {
 
         stdout.flush().unwrap();
 
+        // initial state of the application to be rendered
+        let initial_state = State {
+            game: quarto::new_game().to_game(),
+            selection: Left((true, 0)),
+            error: None,
+        };
+
+        // variable that starts the same. `None` exits the game instead.
+        let mut state = Some(initial_state);
+
         // wait for user to read splash screen
-        let mut exit = true;
-        loop {
+        while state.is_some() {
             let input = stdin.next();
             match input {
                 None => {
@@ -54,23 +63,15 @@ fn main() {
                     thread::sleep(Duration::from_millis(50))
                 },
                 Some(Ok(key)) => match key {
-                    Key::Char('q')  => { exit = true; break },
-                    Key::Char('\n') => { exit = false; break },
+                    Key::Char('q')  => state = None,
+                    Key::Char('\n') => break,
                     _               => thread::sleep(Duration::from_millis(50)),
                 },
             }
         }
 
-        // initial state of the application to be rendered
-        let initial_state = State {
-            game: quarto::new_game().to_game(),
-            selection: Left((true, 0)),
-            error: None,
-        };
-
         // run the app, or skip and go straight to the exit.
-        let mut state = Some(initial_state);
-        while state.is_some() && !exit {
+        while state.is_some() {
             if let Some(s) = state {
                 write_state(&mut stdout, s);
                 state = step(&mut stdin, s);
