@@ -69,6 +69,13 @@ impl Game {
         }
     }
 
+    pub fn is_final(&self) -> bool {
+        match self {
+            Final(_) => true,
+            _        => false,
+        }
+    }
+
     pub fn is_tie(&self) -> bool {
         match self {
             g @ Final(_) => g.board().is_full(),
