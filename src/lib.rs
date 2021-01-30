@@ -90,7 +90,7 @@ impl Game {
 
     pub fn get_passed_piece(&self) -> Option<Piece> {
         match self {
-            Place(g) => Some(g.passed),
+            Place(g) => Some(g.passed()),
             _ => None,
         }
     }
@@ -119,6 +119,10 @@ impl PassGame {
 impl PlaceGame {
     pub fn to_game(self) -> Game {
         Place(self)
+    }
+
+    pub fn passed(&self) -> Piece {
+        self.passed.clone()
     }
 
     pub fn place(self, square: (Idx, Idx)) -> Option<Either<FinalGame, PassGame>> {
