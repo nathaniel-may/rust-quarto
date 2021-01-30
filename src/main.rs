@@ -200,7 +200,7 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
 
     write_banner(f);
 
-    let mut cursor: (u16, u16) = (4, 8);
+    let mut cursor: (u16, u16) = (6, 8);
 
     // write game board out
     let mut square = (I1, I1);
@@ -224,7 +224,7 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     };
     cursor.1 += 1;
 
-    cursor.0 = 2;
+    cursor.0 = 3;
     // write pass menu row 1
     let mut piece_cursor = (true, 0);
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
