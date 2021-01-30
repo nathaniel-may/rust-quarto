@@ -48,33 +48,33 @@ fn main() {
             error: None,
         };
 
-        // variable that starts the same. `None` exits the game instead.
-        let mut state = Some(initial_state);
-
         // wait for user to read splash screen
-        while state.is_some() {
-            let input = stdin.next();
-            match input {
-                None => {
-                    thread::sleep(Duration::from_millis(50))
-                },
-                // throwing away errors
-                Some(Err(_)) => {
-                    thread::sleep(Duration::from_millis(50))
-                },
-                Some(Ok(key)) => match key {
-                    Key::Char('q')  => state = None,
-                    Key::Char('\n') => break,
-                    _               => thread::sleep(Duration::from_millis(50)),
-                },
+        let mut action = wait_for_user(
+            &mut stdin, 
+            |x| match x {
+                Key::Char('q')  => Some(Action::Quit),
+                Key::Char('\n') => Some(Action::Idle),
+                _               => None,
             }
-        }
+        );
 
-        // run the app, or skip and go straight to the exit.
+        // variable that starts the same. `None` exits the game instead.
+        let mut state = Some(initial_state)
+            .and_then(|s| step(s, action));
+
+        // run the app event loop
         while state.is_some() {
             if let Some(s) = state {
                 write_state(&mut stdout, s);
-                state = step(&mut stdin, s);
+                if s.game.is_final() {
+                    action = wait_for_user(
+                        &mut stdin, 
+                        |_| Some(Action::Quit)
+                    );
+                } else {
+                    action = action_from(stdin.next());
+                }
+                state = step(s, action);
                 thread::sleep(Duration::from_millis(50));
             }
         }
@@ -279,6 +279,20 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     f.flush().unwrap();
 }
 
+fn wait_for_user(input: &mut termion::input::Keys<termion::AsyncReader>, f: fn(termion::event::Key) -> Option<Action>) -> Action {
+    match input.next() {
+        Some(Ok(key)) => match f(key) {
+            None => wait_for_user(input, f),
+            Some(action) => action,
+        },
+        // throwing away errors
+        _ => {
+            thread::sleep(Duration::from_millis(50));
+            wait_for_user(input, f)
+        },
+    }
+}
+
 #[derive(StructOpt)]
 struct Cli {
     // takes no arguments
@@ -299,7 +313,8 @@ struct State {
 enum Action {
     Quit,
     Submit,
-    Move(Direction)
+    Move(Direction), 
+    Idle,
 }
 
 #[derive(Copy, Clone)]
@@ -312,18 +327,8 @@ enum Direction {
     Down,
 }
 
-fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
-    let input = stdin.next();
-    match input {
-        None => {
-            thread::sleep(Duration::from_millis(50));
-            ask(stdin)
-        },
-        // throwing away errors
-        Some(Err(_)) => {
-            thread::sleep(Duration::from_millis(50));
-            ask(stdin)
-        },
+fn action_from(key: Option<std::result::Result<termion::event::Key, std::io::Error>>) -> Action {
+    match key {
         Some(Ok(key)) => match key {
             Key::Char('q')  => Action::Quit,
             Key::Char('\n') => Action::Submit,
@@ -331,16 +336,18 @@ fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
             Key::Right      => Action::Move(Direction::Right),
             Key::Up         => Action::Move(Direction::Up),
             Key::Down       => Action::Move(Direction::Down),
-            _               => ask(stdin), // TODO unrecognized key message
+            _               => Action::Idle,
         },
+        // throws errors away
+        _ => Action::Idle,
     }
 }
 
-fn step(input: &mut termion::input::Keys<termion::AsyncReader>, state: State) -> Option<State> {
-    let action = ask(input);
+fn step(state: State, action: Action) -> Option<State> {
     match (action, state.game) {
         (Action::Quit, _) => None, // exits
-        (_, Final(_)) => None, // exits on any key press
+        (_, Final(_)) => Some(state), // do nothing. exit controlled in event loop.
+        (Action::Idle, _) => Some(state), // do nothing
         (Action::Submit, _) => {
             let selection = match state.selection {
                 Left(cursor) => Left(ALL_PIECES[cursor.1 + if cursor.0 {0} else {8}]),
