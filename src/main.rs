@@ -46,6 +46,7 @@ fn main() {
         // initial state of the application to be rendered
         let initial_state = State {
             game: quarto::new_game().to_game(),
+            player: Player::P1,
             selection: Left((true, 0)),
             error: None,
         };
@@ -301,8 +302,26 @@ struct Cli {
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
+enum Player {
+    P1,
+    P2,
+}
+
+impl Player {
+    fn switch(&self) -> Player {
+        match self {
+            Player::P1 => Player::P2,
+            Player::P2 => Player::P1,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+#[derive(PartialEq, Eq, Hash)]
+#[derive(Debug)]
 struct State {
     game: Game,
+    player: Player,
     selection: Either<(bool, usize), (Idx, Idx)>,
     error: Option<&'static str>,
 }
@@ -358,41 +377,41 @@ fn step(state: State, action: Action) -> Option<State> {
                 Right(_) => Left((true, 0)),
             };
             match play(state.game, selection) {
-                None => Some(State { game: state.game, selection: state.selection, error: Some("try again.") }),
-                Some(g) => Some(State { game: g, selection: new_cursor, error: state.error }),
+                None => Some(State { game: state.game, player: state.player, selection: state.selection, error: Some("try again.") }),
+                Some(g) => Some(State { game: g, player: state.player.switch(), selection: new_cursor, error: state.error }),
             }
         },
         (Action::Move(Direction::Up), Pass(_)) => match state.selection {
-            Left(cursor) => Some(State { game: state.game, selection: Left((true, cursor.1)), error: None }),
-            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, player: state.player, selection: Left((true, cursor.1)), error: None }),
+            Right(_) => Some(State { game: state.game, player: state.player, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Down), Pass(_)) => match state.selection {
-            Left(cursor) => Some(State { game: state.game, selection: Left((false, cursor.1)), error: None }),
-            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, player: state.player, selection: Left((false, cursor.1)), error: None }),
+            Right(_) => Some(State { game: state.game, player: state.player, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Left), Pass(_)) => match state.selection {
-            Left(cursor) => Some(State { game: state.game, selection: Left((cursor.0, if cursor.1==0 {0} else {cursor.1-1})), error: None }),
-            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, player: state.player, selection: Left((cursor.0, if cursor.1==0 {0} else {cursor.1-1})), error: None }),
+            Right(_) => Some(State { game: state.game, player: state.player, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Right), Pass(_)) => match state.selection {
-            Left(cursor) => Some(State { game: state.game, selection: Left((cursor.0, min(7, cursor.1+1))), error: None }),
-            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, player: state.player, selection: Left((cursor.0, min(7, cursor.1+1))), error: None }),
+            Right(_) => Some(State { game: state.game, player: state.player, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Up), Place(_)) => match state.selection {
-            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => Some(State { game: state.game, selection: Right((prev(square.0).unwrap_or(square.0), square.1)), error: None }), 
+            Left(_) => Some(State { game: state.game, player: state.player, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, player: state.player, selection: Right((prev(square.0).unwrap_or(square.0), square.1)), error: None }), 
         },
         (Action::Move(Direction::Down), Place(_)) => match state.selection {
-            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => Some(State { game: state.game, selection: Right((next(square.0).unwrap_or(square.0), square.1)), error: None }), 
+            Left(_) => Some(State { game: state.game, player: state.player, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, player: state.player, selection: Right((next(square.0).unwrap_or(square.0), square.1)), error: None }), 
         },
         (Action::Move(Direction::Left), Place(_)) => match state.selection {
-            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => Some(State { game: state.game, selection: Right((square.0, prev(square.1).unwrap_or(square.1))), error: None }), 
+            Left(_) => Some(State { game: state.game, player: state.player, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, player: state.player, selection: Right((square.0, prev(square.1).unwrap_or(square.1))), error: None }), 
         },
         (Action::Move(Direction::Right), Place(_)) => match state.selection {
-            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => Some(State { game: state.game, selection: Right((square.0, next(square.1).unwrap_or(square.1))), error: None }), 
+            Left(_) => Some(State { game: state.game, player: state.player, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, player: state.player, selection: Right((square.0, next(square.1).unwrap_or(square.1))), error: None }), 
         },
     }
 }
