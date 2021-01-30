@@ -140,47 +140,51 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
             // directly match poorly designed termion types
             match (p.height, selected) {
                 (Height::Tall, true)  => {
-                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                    f.write_fmt(format_args!("{bold}{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_style}",
+                        bold = style::Bold,
                         c = color,
                         bg = color::Bg(color::Rgb(128,128,128)),
                         u = style::NoUnderline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
                         reset_bg = color::Bg(color::Reset),
-                        reset_underline = style::Reset
+                        reset_style = style::Reset
                     )).unwrap()
                 },
                 (Height::Short, true) => {
-                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                    f.write_fmt(format_args!("{bold}{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_style}",
+                        bold = style::Bold,    
                         c = color,
                         bg = color::Bg(color::Rgb(128,128,128)),
                         u = style::NoUnderline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
                         reset_bg = color::Bg(color::Reset),
-                        reset_underline = style::Reset
+                        reset_style = style::Reset
                     )).unwrap()
                 },
                 (Height::Tall, false)  => {
-                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                    f.write_fmt(format_args!("{bold}{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_style}",
+                        bold = style::Bold,
                         c = color,
                         bg = color::Bg(color::Reset),
                         u = style::NoUnderline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
                         reset_bg = color::Bg(color::Reset),
-                        reset_underline = style::Reset
+                        reset_style = style::Reset
                     )).unwrap()
                 },
                 (Height::Short, false) => {
-                    f.write_fmt(format_args!("{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_underline}",
+                    f.write_fmt(format_args!("{bold}{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_style}",
+                        bold = style::Bold,
                         c = color,
                         bg = color::Bg(color::Reset),
                         u = style::NoUnderline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
                         reset_bg = color::Bg(color::Reset),
-                        reset_underline = style::Reset
+                        reset_style = style::Reset
                     )).unwrap()
                 },
             };
