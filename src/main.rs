@@ -29,13 +29,6 @@ static ORIGIN: (u16, u16) = (1, 1);
 fn main() {
     // guards against passing arguments that won't be used.
     let _args = Cli::from_args();
-
-    // initial state of the application to be rendered
-    let initial_state = State {
-        game: quarto::new_game().to_game(),
-        selection: Left((true, 0)),
-        error: None,
-    };
     
     {
         let mut stdin = termion::async_stdin().keys();
@@ -74,9 +67,21 @@ fn main() {
             }
         }
 
+        // initial state of the application to be rendered
+        let initial_state = State {
+            game: quarto::new_game().to_game(),
+            selection: Left((true, 0)),
+            error: None,
+        };
+
         // run the app, or skip and go straight to the exit.
-        if play {
-            run(&mut stdout, &mut stdin, initial_state);
+        let mut state = Some(initial_state);
+        while state.is_some() && play {
+            if let Some(s) = state {
+                write_state(&mut stdout, s);
+                state = step(&mut stdout, &mut stdin, s);
+                thread::sleep(Duration::from_millis(50));
+            }
         }
 
         // show cursor, clear screen
@@ -222,7 +227,8 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     let mut piece_cursor = (true, 0);
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
-        write_piece(f, &Some(*p), either::Left(piece_cursor) == state.selection);
+        let available_piece = if state.game.contains(p) { None } else { Some(*p) };
+        write_piece(f, &available_piece, either::Left(piece_cursor) == state.selection);
         f.write_fmt(format_args!(" ")).unwrap();
         piece_cursor.1 += 1;
     }
@@ -232,7 +238,8 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     piece_cursor = (false, 0);
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
-        write_piece(f, &Some(*p), either::Left(piece_cursor) == state.selection);
+        let available_piece = if state.game.contains(p) { None } else { Some(*p) };
+        write_piece(f, &available_piece, either::Left(piece_cursor) == state.selection);
         f.write_fmt(format_args!(" ")).unwrap();
         piece_cursor.1 += 1;
     }
@@ -327,12 +334,11 @@ fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
     }
 }
 
-fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, state: State) {
-    write_state(output, state);
+fn step<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, state: State) -> Option<State> {
     let action = ask(input);
     match (action, state.game) {
-        (Action::Quit, _) => { /* exits */ },
-        (_, g@Final(_)) => { /* exits on any key press */},
+        (Action::Quit, _) => None, // exits
+        (_, g@Final(_)) => None, // exits on any key press
         (Action::Submit, _) => {
             let selection = match state.selection {
                 Left(cursor) => Left(ALL_PIECES[cursor.1 + if cursor.0 {0} else {8}]),
@@ -343,41 +349,41 @@ fn run<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::A
                 Right(_) => Left((true, 0)),
             };
             match play(state.game, selection) {
-                None => run(output, input, State { game: state.game, selection: state.selection, error: Some("try again.") }),
-                Some(g) => run(output, input,State { game: g, selection: new_cursor, error: state.error }),
+                None => Some(State { game: state.game, selection: state.selection, error: Some("try again.") }),
+                Some(g) => Some(State { game: g, selection: new_cursor, error: state.error }),
             }
         },
         (Action::Move(Direction::Up), Pass(_)) => match state.selection {
-            Left(cursor) => run(output, input, State { game: state.game, selection: Left((true, cursor.1)), error: None }),
-            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, selection: Left((true, cursor.1)), error: None }),
+            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Down), Pass(_)) => match state.selection {
-            Left(cursor) => run(output, input, State { game: state.game, selection: Left((false, cursor.1)), error: None }),
-            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, selection: Left((false, cursor.1)), error: None }),
+            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Left), Pass(_)) => match state.selection {
-            Left(cursor) => run(output, input, State { game: state.game, selection: Left((cursor.0, if cursor.1==0 {0} else {cursor.1-1})), error: None }),
-            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, selection: Left((cursor.0, if cursor.1==0 {0} else {cursor.1-1})), error: None }),
+            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Right), Pass(_)) => match state.selection {
-            Left(cursor) => run(output, input, State { game: state.game, selection: Left((cursor.0, min(7, cursor.1+1))), error: None }),
-            Right(_) => run(output, input, State { game: state.game, selection: Left((true, 0)), error: None }), 
+            Left(cursor) => Some(State { game: state.game, selection: Left((cursor.0, min(7, cursor.1+1))), error: None }),
+            Right(_) => Some(State { game: state.game, selection: Left((true, 0)), error: None }), 
         },
         (Action::Move(Direction::Up), Place(_)) => match state.selection {
-            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((prev(square.0).unwrap_or(square.0), square.1)), error: None }), 
+            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, selection: Right((prev(square.0).unwrap_or(square.0), square.1)), error: None }), 
         },
         (Action::Move(Direction::Down), Place(_)) => match state.selection {
-            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((next(square.0).unwrap_or(square.0), square.1)), error: None }), 
+            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, selection: Right((next(square.0).unwrap_or(square.0), square.1)), error: None }), 
         },
         (Action::Move(Direction::Left), Place(_)) => match state.selection {
-            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, prev(square.1).unwrap_or(square.1))), error: None }), 
+            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, selection: Right((square.0, prev(square.1).unwrap_or(square.1))), error: None }), 
         },
         (Action::Move(Direction::Right), Place(_)) => match state.selection {
-            Left(_) => run(output, input, State { game: state.game, selection: Right((I1, I1)), error: None }),
-            Right(square) => run(output, input, State { game: state.game, selection: Right((square.0, next(square.1).unwrap_or(square.1))), error: None }), 
+            Left(_) => Some(State { game: state.game, selection: Right((I1, I1)), error: None }),
+            Right(square) => Some(State { game: state.game, selection: Right((square.0, next(square.1).unwrap_or(square.1))), error: None }), 
         },
     }
 }
