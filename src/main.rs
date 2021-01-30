@@ -1,19 +1,15 @@
 use quarto::*;
 use structopt::StructOpt;
-use termion::screen::AlternateScreen;
-use termion::{color, clear, style};
+use termion::{color, style};
 use std::io;
 use std::thread;
 use std::time::Duration;
-use std::fmt::Display;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use std::io::{Write, stdout};
 use either::{Either, Left, Right};
-use std::cmp::{min, max};
-use termion::raw::RawTerminal;
-use std::fmt;
+use std::cmp::min;
 
 static BANNER: [&str; 6] = [
     "  ____                   _",
@@ -23,8 +19,6 @@ static BANNER: [&str; 6] = [
     "| |__| | |_| | (_| | |  | || (_) |",
     " \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/"
 ];
-
-static ORIGIN: (u16, u16) = (1, 1);
 
 fn main() {
     // guards against passing arguments that won't be used.
@@ -47,8 +41,8 @@ fn main() {
 
         stdout.flush().unwrap();
 
-        // wait for user
-        let mut play = true;
+        // wait for user to read splash screen
+        let mut exit = true;
         loop {
             let input = stdin.next();
             match input {
@@ -60,8 +54,8 @@ fn main() {
                     thread::sleep(Duration::from_millis(50))
                 },
                 Some(Ok(key)) => match key {
-                    Key::Char('q')  => { play = false; break },
-                    Key::Char('\n') => { play = true; break },
+                    Key::Char('q')  => { exit = true; break },
+                    Key::Char('\n') => { exit = false; break },
                     _               => thread::sleep(Duration::from_millis(50)),
                 },
             }
@@ -76,10 +70,10 @@ fn main() {
 
         // run the app, or skip and go straight to the exit.
         let mut state = Some(initial_state);
-        while state.is_some() && play {
+        while state.is_some() && !exit {
             if let Some(s) = state {
                 write_state(&mut stdout, s);
-                state = step(&mut stdout, &mut stdin, s);
+                state = step(&mut stdin, s);
                 thread::sleep(Duration::from_millis(50));
             }
         }
@@ -97,11 +91,6 @@ fn main() {
 // used instead of the write! macro
 fn write_at<W: io::Write>(pos: (u16, u16), f: &mut W, s: &str) {
     f.write_fmt(format_args!("{}{}", termion::cursor::Goto(pos.0, pos.1), s)).unwrap();
-    f.flush().unwrap();
-}
-
-fn clear<W: io::Write>(f: &mut W) {
-    f.write_fmt(format_args!("{}", termion::clear::All)).unwrap();
     f.flush().unwrap();
 }
 
@@ -334,11 +323,11 @@ fn ask(stdin: &mut termion::input::Keys<termion::AsyncReader>) -> Action {
     }
 }
 
-fn step<W: io::Write>(output: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, state: State) -> Option<State> {
+fn step(input: &mut termion::input::Keys<termion::AsyncReader>, state: State) -> Option<State> {
     let action = ask(input);
     match (action, state.game) {
         (Action::Quit, _) => None, // exits
-        (_, g@Final(_)) => None, // exits on any key press
+        (_, Final(_)) => None, // exits on any key press
         (Action::Submit, _) => {
             let selection = match state.selection {
                 Left(cursor) => Left(ALL_PIECES[cursor.1 + if cursor.0 {0} else {8}]),
