@@ -68,6 +68,7 @@ fn main() {
         while state.is_some() {
             if let Some(s) = state {
                 write_state(&mut stdout, s);
+                stdout.flush().unwrap();
                 if s.game.is_final() {
                     action = wait_for_user(
                         &mut stdin, 
@@ -94,7 +95,6 @@ fn main() {
 // used instead of the write! macro
 fn write_at<W: io::Write>(pos: (u16, u16), f: &mut W, s: &str) {
     f.write_fmt(format_args!("{}{}", termion::cursor::Goto(pos.0, pos.1), s)).unwrap();
-    f.flush().unwrap();
 }
 
 fn write_banner<W: io::Write>(f: &mut W) {
@@ -277,8 +277,6 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
         },
         _ => {},
     }
-    
-    f.flush().unwrap();
 }
 
 fn wait_for_user(input: &mut termion::input::Keys<termion::AsyncReader>, f: fn(termion::event::Key) -> Option<Action>) -> Action {
