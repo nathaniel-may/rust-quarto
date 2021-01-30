@@ -203,9 +203,25 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
 
     write_banner(f);
 
-    let mut cursor: (u16, u16) = (6, 8);
+    let mut cursor: (u16, u16) = (8, 8);
+
+    // write descriptor string
+    let player_str = match state.player {
+        Player::P1 => String::from("P1"),
+        Player::P2 => String::from("P2"),
+    };
+    let descriptor = match state.game {
+        g@Final(_) if g.is_tie() => String::from("    Tie Game!!!     "), //11
+        Final(_) => String::from("     ") + &(player_str + " Wins!!!     "), //10
+        Pass(_)  => String::from(" ") + &(player_str + ", Pass a piece.  "), //17
+        Place(_)  => player_str + &(", Place the piece."), //20
+        //36
+    };
+    write_at(cursor, f, &descriptor);
+    cursor.1 += 2;
 
     // write game board out
+    cursor.0 = 6;
     let mut square = (I1, I1);
     for row in state.game.board().raw().iter() {
         f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
@@ -265,18 +281,11 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
         },
     }
 
+    // write "any key to exit" on a final game
+    cursor.0 = 8;
     match state.game {
-        g@Final(_) => {
-            if g.is_tie() {
-                write_at(cursor, f, "tie game!!!")
-            } else {
-                write_at(cursor, f, "you win!!!")
-            };
-            cursor.1 += 1;
-            cursor.0 = 8;
-            write_at(cursor, f, "press any key to exit.");
-        },
-        _ => {},
+        Final(_) => write_at(cursor, f, "press any key to exit."),
+        _        => {},
     }
 }
 
