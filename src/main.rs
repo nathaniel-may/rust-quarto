@@ -249,7 +249,8 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[..8] {
         let available_piece = if state.game.contains(p) { None } else { Some(*p) };
-        write_piece(f, &available_piece, either::Left(piece_cursor) == state.selection);
+        let selected = (either::Left(piece_cursor) == state.selection) && !state.game.is_final();
+        write_piece(f, &available_piece, selected);
         f.write_fmt(format_args!(" ")).unwrap();
         piece_cursor.1 += 1;
     }
@@ -260,7 +261,8 @@ fn write_state<W: io::Write>(f: &mut W, state: State)  {
     f.write_fmt(format_args!("{}", termion::cursor::Goto(cursor.0, cursor.1))).unwrap();
     for p in &ALL_PIECES[8..] {
         let available_piece = if state.game.contains(p) { None } else { Some(*p) };
-        write_piece(f, &available_piece, either::Left(piece_cursor) == state.selection);
+        let selected = (either::Left(piece_cursor) == state.selection) && !state.game.is_final();
+        write_piece(f, &available_piece, selected);
         f.write_fmt(format_args!(" ")).unwrap();
         piece_cursor.1 += 1;
     }
