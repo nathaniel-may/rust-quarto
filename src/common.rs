@@ -58,7 +58,11 @@ pub trait App {
     fn output_from(state: Self::State) -> Option<Self::Output>;
 
     fn run<W: io::Write>(f: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, tick_ms: Duration) -> Option<Self::Output> {
-        let mut state = Some(Self::initial_state());
+        Self::run_from(Self::initial_state(), f, input, tick_ms)
+    }
+
+    fn run_from<W: io::Write>(initial_state: Self::State, f: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, tick_ms: Duration) -> Option<Self::Output> {
+        let mut state = Some(initial_state);
         let mut action;
     
         // while state is `Some` and the output is not yet available
