@@ -62,7 +62,7 @@ impl App for SplashApp {
         if state.cursor == Row::Top {
             f.write_fmt(format_args!("{}{}         Pass and Play         {}",
                 termion::cursor::Goto(cursor.0, cursor.1),
-                color::Bg(color::Rgb(128, 128, 128)),
+                color::Bg(color::AnsiValue::grayscale(12)),
                 color::Bg(color::Reset)
             )).unwrap();
 
@@ -74,7 +74,7 @@ impl App for SplashApp {
             cursor.1 += 1;
             f.write_fmt(format_args!("{}{}         Local Network         {}",
                 termion::cursor::Goto(cursor.0, cursor.1),
-                color::Bg(color::Rgb(128, 128, 128)),
+                color::Bg(color::AnsiValue::grayscale(12)),
                 color::Bg(color::Reset)
             )).unwrap();
         }

@@ -24,7 +24,7 @@ pub fn write_banner_at<W: io::Write>(cursor: (u16, u16), f: &mut W) {
             "{}{}{}{}{}{}",
             style::Bold,
             termion::cursor::Goto(cursor.1, i),
-            color::Fg(color::Rgb(138, 43, 226)),
+            color::Fg(color::AnsiValue::rgb(2, 0, 5)), // original truecolor: Rgb(138, 43, 226)
             line,
             color::Fg(color::Reset),
             style::Reset

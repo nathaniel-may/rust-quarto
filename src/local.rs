@@ -300,7 +300,7 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
         None => {
             if selected {
                 f.write_fmt(format_args!("{bg}{empty}{reset_bg}",
-                    bg = color::Bg(color::Rgb(128,128,128)),
+                    bg = color::Bg(color::AnsiValue::grayscale(12)),
                     empty = "   ",
                     reset_bg = color::Bg(color::Reset)
                 )).unwrap()
@@ -320,8 +320,8 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
             };
 
             let color = match p.color {
-                Color::White => color::Fg(color::Rgb(255, 0, 0)),
-                Color::Black => color::Fg(color::Rgb(0, 64, 255)),
+                Color::White => color::Fg(color::AnsiValue::rgb(5, 0, 0)),
+                Color::Black => color::Fg(color::AnsiValue::rgb(0, 1, 5)),
             };
 
             // directly match poorly designed termion types
@@ -330,7 +330,7 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
                     f.write_fmt(format_args!("{bold}{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_style}",
                         bold = style::Bold,
                         c = color,
-                        bg = color::Bg(color::Rgb(128,128,128)),
+                        bg = color::Bg(color::AnsiValue::grayscale(12)),
                         u = style::Underline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
@@ -342,7 +342,7 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
                     f.write_fmt(format_args!("{bold}{c}{bg}{u}{piece}{reset_color}{reset_bg}{reset_style}",
                         bold = style::Bold,    
                         c = color,
-                        bg = color::Bg(color::Rgb(128,128,128)),
+                        bg = color::Bg(color::AnsiValue::grayscale(12)),
                         u = style::NoUnderline,
                         piece = s,
                         reset_color = color::Fg(color::Reset),
