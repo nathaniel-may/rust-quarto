@@ -1,3 +1,7 @@
+mod common;
+use crate::common::*;
+mod splash;
+
 use quarto::*;
 use structopt::StructOpt;
 use termion::{color, style};
@@ -10,8 +14,6 @@ use termion::raw::IntoRawMode;
 use std::io::{Write, stdout};
 use either::{Either, Left, Right};
 use std::cmp::min;
-
-mod splash;
 
 
 static TICK_MS: Duration = Duration::from_millis(50); 
@@ -77,13 +79,8 @@ fn main() {
     println!("{}", "Done.")
 }
 
-// used instead of the write! macro
-fn write_at<W: io::Write>(pos: (u16, u16), f: &mut W, s: &str) {
-    f.write_fmt(format_args!("{}{}", termion::cursor::Goto(pos.0, pos.1), s)).unwrap();
-}
-
 fn write_banner<W: io::Write>(f: &mut W) {
-    for (idx, line) in splash::BANNER.iter().enumerate() {
+    for (idx, line) in common::BANNER.iter().enumerate() {
         let i = (idx + 1) as u16;
         f.write_fmt(format_args!(
             "{}{}{}{}{}{}",

@@ -1,20 +1,14 @@
+use crate::common::*;
+
 use std::{
     io, thread,
     time::Duration
 };
 use termion::{
-    color, style,
+    color,
     event::Key
 };
 
-pub static BANNER: [&str; 6] = [
-    "  ____                   _",
-    " / __ \\                 | |",
-    "| |  | |_   _  __ _ _ __| |_ ___",
-    "| |  | | | | |/ _` | '__| __/ _ \\",
-    "| |__| | |_| | (_| | |  | || (_) |",
-    " \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/"
-];
 
 #[derive(Copy, Clone)]
 #[derive(PartialEq, Eq, Hash)]
@@ -66,7 +60,6 @@ pub fn run<W: io::Write>(f: &mut W, input: &mut termion::input::Keys<termion::As
         thread::sleep(tick_ms);
     }
 
-    // state.and_then(state.mode)
     state?.mode
 }
 
@@ -94,25 +87,10 @@ fn action_from(key: Option<std::result::Result<termion::event::Key, std::io::Err
     }
 }
 
-pub fn write_banner_at<W: io::Write>(f: &mut W, cursor: (u16, u16)) {
-    for (idx, line) in BANNER.iter().enumerate() {
-        let i = idx as u16 + cursor.0;
-        f.write_fmt(format_args!(
-            "{}{}{}{}{}{}",
-            style::Bold,
-            termion::cursor::Goto(cursor.1, i),
-            color::Fg(color::Rgb(138, 43, 226)),
-            line,
-            color::Fg(color::Reset),
-            style::Reset
-        )).unwrap();
-    }
-}
-
 fn write_state<W: io::Write>(f: &mut W, state: State) {
     let mut cursor: (u16, u16) = (1, 2);
 
-    write_banner_at(f, cursor);
+    write_banner_at(cursor, f);
     cursor = (3, 8);
 
     cursor.1 += 1;
@@ -124,13 +102,9 @@ fn write_state<W: io::Write>(f: &mut W, state: State) {
         )).unwrap();
 
         cursor.1 += 1;
-        f.write_fmt(format_args!("{}         Local Network         ",
-            termion::cursor::Goto(cursor.0, cursor.1)
-        )).unwrap();
+        write_at(cursor, f, "         Local Network         ");
     } else {
-        f.write_fmt(format_args!("{}         Pass and Play         ",
-            termion::cursor::Goto(cursor.0, cursor.1)
-        )).unwrap();
+        write_at(cursor, f, "         Pass and Play         ");
 
         cursor.1 += 1;
         f.write_fmt(format_args!("{}{}         Local Network         {}",
@@ -141,8 +115,5 @@ fn write_state<W: io::Write>(f: &mut W, state: State) {
     }
 
     cursor.1 += 2;
-    // TODO write_at in common library
-    f.write_fmt(format_args!("{}         - q to quit -         ",
-        termion::cursor::Goto(cursor.0, cursor.1)
-    )).unwrap();
+    write_at(cursor, f, "         - q to quit -         ");
 }
