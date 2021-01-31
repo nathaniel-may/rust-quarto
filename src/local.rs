@@ -254,12 +254,14 @@ impl App for LocalApp {
     
 }
 
+pub enum Void {}
+
 pub struct DisplayWinnerApp {}
 
 impl App for DisplayWinnerApp {
     type State = State;
     type Action = bool;
-    type Output = ();
+    type Output = Void;
 
     fn initial_state() -> Self::State {
         State {
