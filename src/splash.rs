@@ -1,4 +1,7 @@
-use std::io;
+use std::{
+    io, thread,
+    time::Duration
+};
 use termion::{
     color, style,
     event::Key
@@ -47,19 +50,20 @@ pub enum Mode {
     LocalNetwork,
 }
 
-//termion::input::Keys<termion::raw::RawTerminal<dyn io::Write>>
-pub fn run<W: io::Write>(f: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>) -> Option<Mode> {
+// Entry point to splash screen
+pub fn run<W: io::Write>(f: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>, tick_ms: Duration) -> Option<Mode> {
     let mut state = Some(State { cursor: Row::Top, mode: None });
     let mut action;
 
     // while state is Some and state.mode is None
     while state.map(|s| s.mode.is_none()) == Some(true) {
         if let Some(s) = state {
-            write_splash(f, s);
+            write_state(f, s);
             f.flush().unwrap();
             action = action_from(input.next());
             state = step(s, action)
         }
+        thread::sleep(tick_ms);
     }
 
     // state.and_then(state.mode)
@@ -105,7 +109,7 @@ pub fn write_banner_at<W: io::Write>(f: &mut W, cursor: (u16, u16)) {
     }
 }
 
-fn write_splash<W: io::Write>(f: &mut W, state: State) {
+fn write_state<W: io::Write>(f: &mut W, state: State) {
     let mut cursor: (u16, u16) = (1, 2);
 
     write_banner_at(f, cursor);
@@ -136,7 +140,7 @@ fn write_splash<W: io::Write>(f: &mut W, state: State) {
         )).unwrap();
     }
 
-    cursor.1 += 1;
+    cursor.1 += 2;
     // TODO write_at in common library
     f.write_fmt(format_args!("{}         - q to quit -         ",
         termion::cursor::Goto(cursor.0, cursor.1)

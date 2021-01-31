@@ -35,7 +35,7 @@ fn main() {
         //     termion::cursor::Goto(3, 8)).unwrap();
         // stdout.flush().unwrap();
 
-        let mode = splash::run(&mut stdout, &mut stdin); // TODO both modes result in pass and play.
+        let mode = splash::run(&mut stdout, &mut stdin, TICK_MS); // TODO both modes result in pass and play.
 
         // initial state of the application to be rendered
         let initial_state = State {
