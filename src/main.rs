@@ -45,20 +45,9 @@ fn main() {
             error: None,
         };
 
-        // wait for user to read splash screen
-        let mut action = wait_for_user(
-            &mut stdin, 
-            |x| match x {
-                Key::Char('q')  => Some(Action::Quit),
-                Key::Char('\n') => Some(Action::Idle),
-                _               => None,
-            }
-        );
-
         // variable that starts the same. `None` exits the game instead.
-        let mut state = mode
-            .and_then(|_| Some(initial_state)) // TODO don't throw away the mode
-            .and_then(|s| step(s, action));
+        let mut state = mode.and_then(|_| Some(initial_state)); // TODO don't throw away the mode
+        let mut action;
 
         // run the app event loop
         while state.is_some() {
