@@ -109,27 +109,27 @@ fn write_splash<W: io::Write>(f: &mut W, state: State) {
     let mut cursor: (u16, u16) = (1, 2);
 
     write_banner_at(f, cursor);
-    cursor = (12, 8);
+    cursor = (3, 8);
 
     cursor.1 += 2;
     if state.cursor == Row::Top {
-        f.write_fmt(format_args!("{}{}Pass and Play{}",
+        f.write_fmt(format_args!("{}{}         Pass and Play         {}",
             termion::cursor::Goto(cursor.0, cursor.1),
             color::Bg(color::Rgb(128, 128, 128)),
             color::Bg(color::Reset)
         )).unwrap();
 
         cursor.1 += 1;
-        f.write_fmt(format_args!("{}Local Network",
+        f.write_fmt(format_args!("{}         Local Network         ",
             termion::cursor::Goto(cursor.0, cursor.1)
         )).unwrap();
     } else {
-        f.write_fmt(format_args!("{}Pass and Play",
+        f.write_fmt(format_args!("{}         Pass and Play         ",
             termion::cursor::Goto(cursor.0, cursor.1)
         )).unwrap();
 
         cursor.1 += 1;
-        f.write_fmt(format_args!("{}{}Local Network{}",
+        f.write_fmt(format_args!("{}{}         Local Network         {}",
             termion::cursor::Goto(cursor.0, cursor.1),
             color::Bg(color::Rgb(128, 128, 128)),
             color::Bg(color::Reset)
@@ -138,7 +138,7 @@ fn write_splash<W: io::Write>(f: &mut W, state: State) {
 
     cursor.1 += 1;
     // TODO write_at in common library
-    f.write_fmt(format_args!("{}- q to quit -",
+    f.write_fmt(format_args!("{}         - q to quit -         ",
         termion::cursor::Goto(cursor.0, cursor.1)
     )).unwrap();
 }
