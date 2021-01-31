@@ -1,7 +1,11 @@
-use std::io;
+use std::{
+    io,
+    time::Duration,
+    thread,
+};
 use termion::{
     color, 
-    style
+    style,
 };
 
 pub static BANNER: [&str; 6] = [
@@ -31,4 +35,49 @@ pub fn write_banner_at<W: io::Write>(cursor: (u16, u16), f: &mut W) {
 // used instead of the write! macro
 pub fn write_at<W: io::Write>(pos: (u16, u16), f: &mut W, s: &str) {
     f.write_fmt(format_args!("{}{}", termion::cursor::Goto(pos.0, pos.1), s)).unwrap();
+}
+
+trait App {
+    type Action: Copy;
+    type State: Copy;
+    type Output;
+
+    // how often should the app refresh? Default 50ms
+    fn tick_ms() -> Duration { 
+        Duration::from_millis(50) 
+    }
+
+    // initial state of the application
+    fn initial_state() -> Self::State;
+
+    // write the state. // TODO allow errors?
+    fn write_state<W: io::Write>(f: &mut W, state: Self::State);
+
+    // Define keypress behvior // TODO idle to option?
+    fn action_from(key: Option<std::result::Result<termion::event::Key, std::io::Error>>) -> Self::Action;
+    
+    // None = exit; Some holds the updated state
+    fn step(state: Self::State, action: Self::Action) -> Option<Self::State>;
+
+    // None = continue; Some holds the desired result from the state
+    fn output_from(state: Self::State) -> Option<Self::Output>;
+
+    fn run<W: io::Write>(f: &mut W, input: &mut termion::input::Keys<termion::AsyncReader>) -> Option<Self::Output> {
+        let mut state = Some(Self::initial_state());
+
+        let mut action;
+    
+        // while state is `Some` and the output is not yet available
+        while state.map(|s| Self::output_from(s).is_none()) == Some(true) {
+            if let Some(s) = state {
+                Self::write_state(f, s);
+                f.flush().unwrap();
+                action = Self::action_from(input.next());
+                state = Self::step(s, action)
+            }
+            thread::sleep(Self::tick_ms());
+        }
+    
+        state.and_then(|s| Self::output_from(s))
+    }
 }
