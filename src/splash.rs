@@ -111,7 +111,7 @@ fn write_splash<W: io::Write>(f: &mut W, state: State) {
     write_banner_at(f, cursor);
     cursor = (3, 8);
 
-    cursor.1 += 2;
+    cursor.1 += 1;
     if state.cursor == Row::Top {
         f.write_fmt(format_args!("{}{}         Pass and Play         {}",
             termion::cursor::Goto(cursor.0, cursor.1),
