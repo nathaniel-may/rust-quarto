@@ -11,14 +11,8 @@ use std::io::{Write, stdout};
 use either::{Either, Left, Right};
 use std::cmp::min;
 
-static BANNER: [&str; 6] = [
-    "  ____                   _",
-    " / __ \\                 | |",
-    "| |  | |_   _  __ _ _ __| |_ ___",
-    "| |  | | | | |/ _` | '__| __/ _ \\",
-    "| |__| | |_| | (_| | |  | || (_) |",
-    " \\___\\_\\\\__,_|\\__,_|_|   \\__\\___/"
-];
+mod splash;
+
 
 static TICK_MS: Duration = Duration::from_millis(50); 
 
@@ -36,12 +30,12 @@ fn main() {
             termion::cursor::Goto(1, 1),
             termion::cursor::Hide).unwrap();
 
-        write_banner(&mut stdout);
+        // write_banner(&mut stdout);
+        // write!(stdout, "{}q to exit. <Enter> to continue.",
+        //     termion::cursor::Goto(3, 8)).unwrap();
+        // stdout.flush().unwrap();
 
-        write!(stdout, "{}q to exit. <Enter> to continue.",
-            termion::cursor::Goto(3, 8)).unwrap();
-
-        stdout.flush().unwrap();
+        let mode = splash::run(&mut stdout, &mut stdin); // TODO both modes result in pass and play.
 
         // initial state of the application to be rendered
         let initial_state = State {
@@ -62,7 +56,8 @@ fn main() {
         );
 
         // variable that starts the same. `None` exits the game instead.
-        let mut state = Some(initial_state)
+        let mut state = mode
+            .and_then(|_| Some(initial_state)) // TODO don't throw away the mode
             .and_then(|s| step(s, action));
 
         // run the app event loop
@@ -99,7 +94,7 @@ fn write_at<W: io::Write>(pos: (u16, u16), f: &mut W, s: &str) {
 }
 
 fn write_banner<W: io::Write>(f: &mut W) {
-    for (idx, line) in BANNER.iter().enumerate() {
+    for (idx, line) in splash::BANNER.iter().enumerate() {
         let i = (idx + 1) as u16;
         f.write_fmt(format_args!(
             "{}{}{}{}{}{}",
