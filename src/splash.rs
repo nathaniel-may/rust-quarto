@@ -109,7 +109,7 @@ fn write_splash<W: io::Write>(f: &mut W, state: State) {
     let mut cursor: (u16, u16) = (1, 2);
 
     write_banner_at(f, cursor);
-    cursor = (8, 8);
+    cursor = (12, 8);
 
     cursor.1 += 2;
     if state.cursor == Row::Top {
