@@ -30,7 +30,8 @@ struct State {
 #[derive(PartialEq, Eq, Hash)]
 #[derive(Debug)]
 enum Action {
-    Switch,
+    CursorUp,
+    CursorDown,
     Submit,
     Quit,
     Idle,
@@ -69,7 +70,8 @@ fn step(state: State, action: Action) -> Option<State> {
         (Action::Idle, _) => Some(state),
         (Action::Submit, Row::Top) => Some(State { cursor: state.cursor, mode: Some(Mode::PassAndPlay) }),
         (Action::Submit, Row::Bottom) => Some(State { cursor: state.cursor, mode: Some(Mode::LocalNetwork) }),
-        (Action::Switch, row) => Some(State { cursor: if row == Row::Top { Row::Bottom } else { Row::Top }, mode: state.mode }),
+        (Action::CursorUp, _) => Some(State { cursor: Row::Top, mode: state.mode }),
+        (Action::CursorDown, _) => Some(State { cursor: Row::Bottom, mode: state.mode }),
     }
 }
 
@@ -78,8 +80,8 @@ fn action_from(key: Option<std::result::Result<termion::event::Key, std::io::Err
         Some(Ok(key)) => match key {
             Key::Char('q')  => Action::Quit,
             Key::Char('\n') => Action::Submit,
-            Key::Up         => Action::Switch,
-            Key::Down       => Action::Switch,
+            Key::Up         => Action::CursorUp,
+            Key::Down       => Action::CursorDown,
             _               => Action::Idle,
         },
         // throws errors away
