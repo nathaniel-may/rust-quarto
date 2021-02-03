@@ -379,7 +379,8 @@ fn write_piece<W: io::Write>(f: &mut W, op: &Option<Piece>, selected: bool) {
     }
 }
 
-fn play(game:Game, selection: Either<Piece, (Idx, Idx)>) -> Option<Game> {
+// TODO this should probably live in the library
+pub fn play(game:Game, selection: Either<Piece, (Idx, Idx)>) -> Option<Game> {
     match (game, selection) {
         (Final(_), _) => None,
         (Pass(g), Left(p)) => g.pass(p).map(|x| x.to_game()),
@@ -405,7 +406,7 @@ fn merge<A>(z: Either<A, A>) -> A {
     }
 }
 
-fn next(i: Idx) -> Option<Idx> {
+pub fn next(i: Idx) -> Option<Idx> {
     match i {
         I1 => Some(I2),
         I2 => Some(I3),
@@ -414,7 +415,7 @@ fn next(i: Idx) -> Option<Idx> {
     }
 }
 
-fn prev(i: Idx) -> Option<Idx> {
+pub fn prev(i: Idx) -> Option<Idx> {
     match i {
         I1 => None,
         I2 => Some(I1),
